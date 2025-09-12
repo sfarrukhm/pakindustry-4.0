@@ -1,0 +1,14 @@
+torch
+torchvision
+torchaudio
+ultralytics
+scikit-learn
+xgboost
+pandas
+numpy
+matplotlib
+seaborn
+statsmodels
+prophet
+shap
+albumentations
