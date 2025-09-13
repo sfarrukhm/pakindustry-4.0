@@ -1,0 +1,13 @@
+augment:
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 10.0
+  translate: 0.1
+  scale: 0.5
+  shear: 0.0
+  flipud: 0.0
+  fliplr: 0.5
+  mosaic: 0.0   # disable mosaic (bad for small holes)
+  mixup: 0.0    # disable mixup
+  copy_paste: 0.1
