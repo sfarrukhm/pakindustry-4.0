@@ -1,14 +1,14 @@
-torch
-torchvision
-torchaudio
-ultralytics
-scikit-learn
-xgboost
-pandas
-numpy
-matplotlib
-seaborn
-statsmodels
-prophet
-shap
-albumentations
+scikit-learn==1.6.1
+pandas==2.2.2
+numpy==2.0.2
+matplotlib==3.10.0
+seaborn==0.13.2
+
+#torch==2.8.0
+# ultralytics==8.3.199
+# xgboost==3.0.4
+# statsmodels==0.14.5
+# prophet==1.1.7
+# shap==0.48.0
+
+
