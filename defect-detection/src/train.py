@@ -86,7 +86,7 @@ val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE,
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device:", device)
 
-model = models.efficientnet_b0(pretrained=True)
+model = models.efficientnet_b0(weights=True)
 model.classifier[1] = nn.Linear(model.classifier[1].in_features, 1)
 model = model.to(device)
 
