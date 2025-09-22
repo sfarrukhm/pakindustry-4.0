@@ -99,15 +99,23 @@ print(f"  ROC-AUC  : {auc:.4f}")
 
 # --- Confusion Matrix ---
 cm = confusion_matrix(y_true, y_pred)
+labels = ["OK", "Defected"]
+
+print("\n🧮 Confusion Matrix (Console View):")
+print(f"{'':>12}  Predicted OK | Predicted Defected")
+print(f"{'-'*40}")
+print(f"Actual OK       {cm[0][0]:>10} | {cm[0][1]:>17}")
+print(f"Actual Defected {cm[1][0]:>10} | {cm[1][1]:>17}")
+
+# --- Save Heatmap ---
 plt.figure(figsize=(5, 4))
 sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
-            xticklabels=["OK", "Defected"],
-            yticklabels=["OK", "Defected"])
+            xticklabels=labels, yticklabels=labels)
 plt.title("Confusion Matrix")
 plt.xlabel("Predicted")
 plt.ylabel("True")
 
 cm_path = os.path.join(RESULTS_DIR, "confusion_matrix_eval.png")
-plt.savefig(cm_path, dpi=300, bbox_inches="tight")
+plt.savefig(cm_path, dpi=100, bbox_inches="tight")
 plt.close()
-print(f"✅ Confusion matrix saved at {cm_path}")
+print(f"\n✅ Confusion matrix plot saved at {cm_path}")
