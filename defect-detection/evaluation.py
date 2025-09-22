@@ -102,9 +102,9 @@ cm = confusion_matrix(y_true, y_pred)
 labels = ["OK", "Defected"]
 
 print("\n🧮 Confusion Matrix (Console View):")
-print(f"{'':>12} Predicted OK | Predicted Defected")
+print(f"{'':>12}  Predicted OK | Predicted Defected")
 print(f"{'-'*40}")
-print(f"Actual OK      {cm[0][0]:>10} | {cm[0][1]:>17}")
+print(f"Actual OK       {cm[0][0]:>10} | {cm[0][1]:>17}")
 print(f"Actual Defected {cm[1][0]:>10} | {cm[1][1]:>17}")
 
 # --- Save Heatmap ---
