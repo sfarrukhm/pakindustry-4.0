@@ -39,6 +39,7 @@ torch.cuda.manual_seed_all(SEED)
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 SAVE_DIR = os.path.join(PROJECT_ROOT, "models")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
 CSV_TRAIN = os.path.join(DATA_DIR, "train", "_classes.csv")
 CSV_VALID = os.path.join(DATA_DIR, "valid", "_classes.csv")
@@ -169,10 +170,9 @@ plt.xlabel("Predicted")
 plt.ylabel("True")
 
 # Ensure reports/ directory exists
-os.makedirs("results", exist_ok=True)
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
-# Save plot
-plot_path = os.path.join("results", "confusion_matrix.png")
+plot_path = os.path.join(RESULTS_DIR, "confusion_matrix.png")
 plt.savefig(plot_path, dpi=300, bbox_inches="tight")
 print(f"✅ Confusion matrix saved to {plot_path}")
 
