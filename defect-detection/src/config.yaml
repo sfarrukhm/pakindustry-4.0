@@ -6,6 +6,7 @@ default:
   img_dir_train: "./data/train"
   img_dir_valid: "./data/valid"
   save_path: "./models/best_model.pth"
+  results_dir: "./results"
 
   batch_size: 32
   img_size: 300
