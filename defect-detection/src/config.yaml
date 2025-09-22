@@ -1,0 +1,15 @@
+default:
+
+  data_dir: "./data"
+  csv_train: "./data/train/_classes.csv"
+  csv_valid: "./data/valid/_classes.csv"
+  img_dir_train: "./data/train"
+  img_dir_valid: "./data/valid"
+  save_path: "./models/best_model.pth"
+
+  batch_size: 32
+  img_size: 300
+  epochs: 20
+  lr: 0.001
+  patience: 3
+
