@@ -169,7 +169,7 @@ plt.xlabel("Predicted")
 plt.ylabel("True")
 
 # Ensure reports/ directory exists
-os.makedirs("reports", exist_ok=True)
+os.makedirs("results", exist_ok=True)
 
 # Save plot
 plot_path = os.path.join("results", "confusion_matrix.png")
