@@ -52,7 +52,7 @@ def preprocess_image(img: Image.Image) -> torch.Tensor:
 # 2. LOAD MODEL
 # -------------------------------
 arch = config["model"]["architecture"]
-if arch == "efficientnet-b0":
+if arch == "efficientnet_b0":
     model = models.efficientnet_b0(weights=None)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
 else:
