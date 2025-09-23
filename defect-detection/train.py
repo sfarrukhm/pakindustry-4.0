@@ -19,7 +19,7 @@ from tqdm import tqdm
 import seaborn as sns
 
 import yaml
-from dataset import CastDefectDataset   
+from src.dataset import CastDefectDataset   
 
 # -------------------------------
 # 1. CONFIGURATION & SEEDING
