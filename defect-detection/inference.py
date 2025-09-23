@@ -12,7 +12,7 @@ import torchvision.models as models
 # -------------------------------
 # 1. CONFIGURATION
 # -------------------------------
-with open("./src/config.yaml", "r") as f:
+with open("src/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 IMG_SIZE = config["training"]["image_size"]
