@@ -7,7 +7,8 @@ import seaborn as sns
 from PIL import Image
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score,
-    f1_score, roc_auc_score, confusion_matrix
+    f1_score, roc_auc_score, confusion_matrix,
+    roc_curve, precision_recall_curve, auc
 )
 import torchvision.transforms as transforms
 import torchvision.models as models
@@ -96,6 +97,43 @@ print(f"  Precision: {prec:.4f}")
 print(f"  Recall   : {rec:.4f}")
 print(f"  F1-score : {f1:.4f}")
 print(f"  ROC-AUC  : {auc:.4f}")
+# -------------------------------
+# 5. ROC Curve
+# -------------------------------
+fpr, tpr, _ = roc_curve(y_true, y_prob)
+roc_auc = auc(fpr, tpr)
+
+plt.figure(figsize=(6, 5))
+plt.plot(fpr, tpr, color="blue", lw=2, label=f"ROC Curve (AUC = {roc_auc:.2f})")
+plt.plot([0, 1], [0, 1], color="gray", linestyle="--")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve")
+plt.legend(loc="lower right")
+
+roc_path = os.path.join(RESULTS_DIR, "roc_curve.png")
+plt.savefig(roc_path, dpi=100, bbox_inches="tight")
+plt.close()
+print(f"✅ ROC curve saved at {roc_path}")
+
+# -------------------------------
+# 6. Precision-Recall Curve
+# -------------------------------
+precision, recall, _ = precision_recall_curve(y_true, y_prob)
+pr_auc = auc(recall, precision)
+
+plt.figure(figsize=(6, 5))
+plt.plot(recall, precision, color="green", lw=2, label=f"PR Curve (AUC = {pr_auc:.2f})")
+plt.xlabel("Recall")
+plt.ylabel("Precision")
+plt.title("Precision-Recall Curve")
+plt.legend(loc="lower left")
+
+pr_path = os.path.join(RESULTS_DIR, "precision_recall_curve.png")
+plt.savefig(pr_path, dpi=100, bbox_inches="tight")
+plt.close()
+print(f"✅ Precision-Recall curve saved at {pr_path}")
+
 
 # --- Confusion Matrix ---
 cm = confusion_matrix(y_true, y_pred)
