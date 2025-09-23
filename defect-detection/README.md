@@ -36,33 +36,10 @@ This is 1 of 3 modules in the PakIndustry 4.0 AI Suite:
 defect-detection/
 │
 ├── 📁 data/                          # Training and validation datasets
-│   ├── train/                        # Training images with labels
-│   ├── valid/                        # Validation images with labels  
-│   ├── test/                         # Test images with labels
-│   └── README.dataset.txt            # Dataset documentation and audit trail
-│
 ├── 📁 models/                        # Trained model checkpoints
-│   └── best_model.pth                # Best performing model weights
-│
 ├── 📁 results/                       # Evaluation outputs and visualizations
-│   ├── confusion_matrix.png          # Training confusion matrix
-│   ├── confusion_matrix_eval.png     # Evaluation confusion matrix
-│   ├── metrics.md                    # Detailed performance metrics
-│   ├── roc_curve.png                 # ROC curve visualization
-│   ├── precision_recall_curve.png    # PR curve visualization
-│   └── misclassified_grid.png        # Grid of misclassified samples
-│
 ├── 📁 notebooks/                     # Jupyter notebooks for exploration
-│   └── train.ipynb                   # Interactive training notebook
-│
 ├── 📁 src/                           # Source code modules
-│   ├── config.py                     # Configuration constants
-│   ├── config.yaml                   # Training hyperparameters
-│   ├── dataset.py                    # Custom dataset classes
-│   ├── predict.py                    # Prediction utilities
-│   ├── train.py                      # Training utilities
-│   └── utils.py                      # Helper functions
-│
 ├── 📄 train.py                       # Main training script
 ├── 📄 inference.py                   # Inference script for predictions
 ├── 📄 evaluation.py                  # Model evaluation and metrics
@@ -156,8 +133,6 @@ Total Images in train set: 5101
 - ✅ Open source license
 - ✅ Publicly available dataset
 
-
-
 ## 🎯 Training
 
 ### Configuration
@@ -165,22 +140,37 @@ Total Images in train set: 5101
 Training parameters are defined in `src/config.yaml`:
 
 ```yaml
+system:
+  seed: 42
+  device: "cuda"         
+  num_workers: 2
+
 model:
-  architecture: "efficientnet-b0"
+  architecture: "efficientnet_b0"
   num_classes: 2
   pretrained: true
 
 training:
   batch_size: 32
   learning_rate: 0.001
-  epochs: 50
-  patience: 10
-  image_size: 224
+  epochs: 20
+  patience: 3
+  image_size: 300
 
+transforms:
+  resize: [300, 300]
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
 
-system:
-  seed: 42
-  device: "cuda"  # auto-detects if available
+paths:
+  data_dir: "./data"
+  train_csv: "./data/train/_classes.csv"
+  valid_csv: "./data/valid/_classes.csv"
+  train_images: "./data/train"
+  valid_images: "./data/valid"
+  models_dir: "./models"
+  results_dir: "./results"
+  best_model: "./models/best_model.pth"
 ```
 
 ### Run Training
@@ -190,14 +180,15 @@ system:
 python train.py
 ```
 
-### Training Output
+### Training Results
 
 ```
-Epoch 1/50: Train Loss: 0.6421, Train Acc: 65.2%, Val Loss: 0.5234, Val Acc: 72.8%
-Epoch 2/50: Train Loss: 0.4892, Train Acc: 76.1%, Val Loss: 0.4123, Val Acc: 81.3%
-...
-Early stopping at epoch 23. Best validation accuracy: 91.2%
-Model saved to: models/best_model.pth
+📌 Final Metrics:
+Accuracy : 0.9972
+Precision: 1.0000
+Recall   : 0.9953
+F1-score : 0.9977
+AUC      : 0.9977
 ```
 
 ---
@@ -208,36 +199,24 @@ Model saved to: models/best_model.pth
 
 ```bash
 # Predict single image
-python inference.py --image path/to/image.jpg
-
-# Output with confidence scores
-python inference.py --image samples/defect_sample.jpg --confidence
+python inference.py --image data/valid/sample.jpg --confidence
 ```
 
 **Example Output:**
 
 ```
-Image: samples/defect_sample.jpg
+Image: data/valid/sample.jpg
 Prediction: Defected
-Confidence: 0.94 (94.0%)
-Processing time: 0.12 seconds
+Confidence: 1.00 (100.0%)
+Processing time: 0.10 seconds
 ```
 
 ### Batch Prediction
 
 ```bash
-# Process entire folder
-python inference.py --folder path/to/images/ --output results.csv
 
 # Process with visualization
-python inference.py --folder test_images/ --visualize --output batch_results.csv
-```
-
-### Web Application
-
-```bash
-# Launch Streamlit app
-streamlit run app.py
+python inference.py --folder data/valid/ --output results.csv --visualize## Web Application
 ```
 
 Access the web interface at `http://localhost:8501` for interactive defect detection.
@@ -260,34 +239,15 @@ python evaluation.py --model models/best_model.pth --plots --misclassified
 
 #### **🎯 Competition Requirements: ✅ EXCEEDED**
 
-| Metric    | **Target** | **Achieved** | **Status**  |
-| --------- | ---------- | ------------ | ----------- |
-| Accuracy  | ≥ 85%      | **91.2%**    | ✅ **+6.2%** |
-| Precision | -          | **90.8%**    | ✅           |
-| Recall    | -          | **91.6%**    | ✅           |
-| F1-Score  | -          | **91.2%**    | ✅           |
-| AUC-ROC   | -          | **0.967**    | ✅           |
+| Metric    | **Target** | **Achieved** |
+| --------- | ---------- | ------------ |
+| Accuracy  | ≥ 85%      | **99.6%**    |
+| Precision | -          | **100%**     |
+| Recall    | -          | **99.4%**    |
+| F1-Score  | -          | **99.7%**    |
+| ROC-AUC   | -          | **100%**     |
 
-#### **Detailed Performance Report**
-
-```
-Classification Report:
-                precision    recall  f1-score   support
-           OK       0.908     0.916     0.912       143
-     Defected       0.916     0.908     0.912       142
-
-     accuracy                           0.912       285
-    macro avg       0.912     0.912     0.912       285
- weighted avg       0.912     0.912     0.912       285
-
-Confusion Matrix:
-              Predicted
-Actual    OK  Defected
-   OK    131      12
-Defected  13     129
-```
-
----
+#### 
 
 ## 📊 Results & Visualizations
 
@@ -299,19 +259,17 @@ Defected  13     129
 
 ### 2. ROC Curve
 
-![ROC Curve](results/roc_curve.png)
-
-*AUC = 0.967 indicates excellent discriminative ability*
+![](D:\MYWOrk\pakindustry-4.0\defect-detection\results\roc_curve%20-%20Copy.png)
 
 ### 3. Precision-Recall Curve
 
-![PR Curve](results/precision_recall_curve.png)
+![](D:\MYWOrk\pakindustry-4.0\defect-detection\results\precision_recall_curve%20-%20Copy.png)
 
 *Balanced precision-recall trade-off across all thresholds*
 
 ### 4. Misclassified Samples Analysis
 
-![Misclassified Grid](results/misclassified_grid.png)
+![Misclassified Grid](D:\MYWOrk\pakindustry-4.0\defect-detection\results\misclassified_samples.png)
 
 *Analysis of edge cases and challenging samples for continuous improvement*
 
@@ -321,9 +279,8 @@ Defected  13     129
 
 ### **Technical Excellence**
 
-- **Model Performance**: 91.2% accuracy (6.2% above requirement)
+- **Model Performance**: 99.6% accuracy
 - **Robust Architecture**: EfficientNet-B0 optimized for manufacturing defects
-- **Fast Inference**: <200ms per image on CPU, <50ms on GPU
 
 ### **Pakistan Manufacturing Context**
 
@@ -348,20 +305,17 @@ Defected  13     129
 - **Input Size**: 224×224×3 RGB images
 - **Output**: Binary classification with confidence scores
 
-### Performance Benchmarks
-
-| Hardware       | Training Time | Inference Time | Memory Usage |
-| -------------- | ------------- | -------------- | ------------ |
-| GPU (RTX 3070) | 45 minutes    | 45ms/image     | 2.1GB        |
-| CPU (Intel i7) | 6 hours       | 180ms/image    | 1.2GB        |
+# 
 
 ### Data Augmentation
 
-- Random horizontal/vertical flips
-- Random rotation (±15°)
-- Random brightness/contrast adjustment
-- Gaussian noise injection
-- All applied during training only
+- **Flip:** Horizontal, Vertical
+
+- **90° Rotate:** Clockwise, Counter-Clockwise
+
+- **Rotation**: Between -15° and +15°
+
+- **Shear**: ±15° Horizontal, ±15° Vertical
 
 ---
 
@@ -372,6 +326,7 @@ Defected  13     129
 - **Lighting Conditions**: Performance may vary under extreme lighting
 - **New Defect Types**: Requires retraining for previously unseen defect patterns
 - **Material Specific**: Optimized for cast parts; may need adjustment for other materials
+- **Inference Time**: Current inference time per image is 0.27s, which is comparatively large. 
 
 ### Planned Enhancements
 
@@ -382,11 +337,12 @@ Defected  13     129
 
 ---
 
-## 🔗 Integration with PakIndustry 4.0 Suite
-
-This defect detection module seamlessly integrates with:
-
 ## 📱 Web Application Features
+
+```bash
+# Launch Streamlit app
+streamlit run app.py
+```
 
 ### Streamlit Interface
 
@@ -396,6 +352,6 @@ This defect detection module seamlessly integrates with:
 - **Historical Analysis**: Track defect patterns over time
 - **Export Reports**: Download results in CSV/PDF format
 
-### Screenshots
+### Screenshot
 
-*[Web app screenshots would be included here]*
+![](C:\Users\HP\AppData\Roaming\marktext\images\2025-09-23-16-41-42-image.png)
