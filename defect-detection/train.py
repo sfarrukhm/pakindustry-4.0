@@ -25,7 +25,7 @@ from src.dataset import CastDefectDataset
 # -------------------------------
 # 1. CONFIGURATION & SEEDING
 # -------------------------------
-with open("./src/config.yaml", "r") as f:
+with open("/src/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 SEED = config["system"]["seed"]
