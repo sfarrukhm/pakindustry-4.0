@@ -37,8 +37,8 @@ DEVICE = torch.device(config["system"]["device"] if torch.cuda.is_available() el
 # Transform
 base_transform = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
-    transforms.Normalize(mean=config["transforms"]["normalize_mean"],
-                         std=config["transforms"]["normalize_std"])
+    transforms.Normalize(mean=config["transforms"]["mean"],
+                         std=config["transforms"]["std"])
 ])
 
 def preprocess_image(img: Image.Image) -> torch.Tensor:
