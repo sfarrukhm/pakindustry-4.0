@@ -8,6 +8,7 @@ import torchvision.models as models
 
 import warnings
 warnings.filterwarnings("ignore")
+
 # -------------------------------
 # 1. CONFIGURATION
 # -------------------------------
@@ -17,7 +18,7 @@ CONFIG_PATH = os.path.join(PROJECT_ROOT, "src", "config.yaml")
 with open(CONFIG_PATH, "r") as f:
     config = yaml.safe_load(f)
 
-IMG_SIZE = config["default"]["img_size"]
+IMG_SIZE = config["training"]["image_size"]
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pth")
 DEFAULT_DIR = os.path.join(PROJECT_ROOT, "data", "valid")
 
@@ -31,8 +32,8 @@ base_transform = transforms.Compose([
 ])
 
 def preprocess_image(img: Image.Image, device) -> torch.Tensor:
-    image = img.convert("L")
-    image = transforms.ToTensor()(image).repeat(3, 1, 1)
+    image = img.convert("L")  # grayscale
+    image = transforms.ToTensor()(image).repeat(3, 1, 1)  # expand to 3 channels
     image = base_transform(image)
     return image.unsqueeze(0).to(device)
 
@@ -42,8 +43,15 @@ def preprocess_image(img: Image.Image, device) -> torch.Tensor:
 @st.cache_resource
 def load_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = models.efficientnet_b0(weights=None)
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+    arch = config["model"]["architecture"].lower()
+    pretrained = config["model"]["pretrained"]
+
+    if arch in ["efficientnet-b0", "efficientnet_b0"]:
+        model = models.efficientnet_b0(weights="IMAGENET1K_V1" if pretrained else None)
+        model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+    else:
+        raise ValueError(f"Model {arch} not supported in app.py")
+
     model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     model = model.to(device)
     model.eval()
@@ -65,12 +73,12 @@ def predict_image(img: Image.Image):
 st.set_page_config(page_title="Defect Detection", layout="wide")
 st.title("🛠️ Cast Part Defect Detection")
 
-# Intro section (centered & styled)
 st.markdown(
     """
     <div style="text-align: center; font-size:18px;">
-        Upload one or more images of cast parts.<br>
-        The model will classify them as <b style="color:green;">OK</b> ✅ or 
+        Upload your own images or pick from the default dataset folder.<br>
+        The model will classify them as 
+        <b style="color:green;">OK</b> ✅ or 
         <b style="color:red;">Defected</b> ❌ with confidence scores.
     </div>
     """,
@@ -78,32 +86,52 @@ st.markdown(
 )
 st.write("---")
 
-# File uploader + dataset info side by side
-col1, col2 = st.columns([3, 1])
-with col1:
+# Two tabs: Upload vs Default Dataset
+tab1, tab2 = st.tabs(["📤 Upload Images", "📂 Use Default Dataset"])
+
+with tab1:
     uploaded_files = st.file_uploader(
-        "📤 Upload cast part images",
+        "Upload cast part images",
         type=["jpg", "jpeg", "png"],
         accept_multiple_files=True,
         key="file_uploader"
     )
-with col2:
-    st.caption("📂 **Default dataset directory:**")
-    st.code(DEFAULT_DIR, language="bash")
 
-# Show results in a grid layout
+with tab2:
+    all_valid_images = [
+        os.path.join(DEFAULT_DIR, f) for f in os.listdir(DEFAULT_DIR)
+        if f.lower().endswith((".jpg", ".jpeg", ".png"))
+    ]
+    selected_files = st.multiselect(
+        "Select images from default dataset:",
+        options=all_valid_images,
+        default=all_valid_images[:5] if all_valid_images else []
+    )
+
+# Merge both sources
+final_files = []
 if uploaded_files:
-    n_cols = 3  # Number of grid columns
+    final_files.extend(uploaded_files)
+if selected_files:
+    final_files.extend(selected_files)
+
+# Results grid
+if final_files:
+    n_cols = 3
     cols = st.columns(n_cols)
 
-    for i, uploaded_file in enumerate(uploaded_files):
-        img = Image.open(uploaded_file)
-        label, prob = predict_image(img)
+    for i, f in enumerate(final_files):
+        if isinstance(f, str):  # From dataset (path)
+            img = Image.open(f)
+            fname = os.path.basename(f)
+        else:  # Uploaded file
+            img = Image.open(f)
+            fname = os.path.basename(f.name)
 
-        # Assign to a column (grid placement)
+        label, prob = predict_image(img)
         col = cols[i % n_cols]
+
         with col:
-            # Card-style container
             st.markdown(
                 """
                 <div style="
@@ -118,17 +146,16 @@ if uploaded_files:
             )
 
             st.image(img, use_container_width=True)
-            st.markdown(f"**📂 File:** `{os.path.basename(uploaded_file.name)}`")
+            st.markdown(f"**📂 File:** `{fname}`")
 
-            # Prediction badge
             if "OK" in label:
                 st.markdown(f"<span style='color:green; font-weight:bold;'>{label}</span>", unsafe_allow_html=True)
+                confidence = 1 - prob
             else:
                 st.markdown(f"<span style='color:red; font-weight:bold;'>{label}</span>", unsafe_allow_html=True)
+                confidence = prob
 
-            # Confidence as progress bar
-            st.progress(float(prob))
-
-            st.markdown(f"**Confidence:** {prob:.2%}")
+            st.progress(float(confidence))
+            st.markdown(f"**Confidence:** {confidence:.2%}")
 
             st.markdown("</div>", unsafe_allow_html=True)
