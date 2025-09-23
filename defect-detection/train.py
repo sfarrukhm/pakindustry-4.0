@@ -25,7 +25,8 @@ from src.dataset import CastDefectDataset
 # -------------------------------
 # 1. CONFIGURATION & SEEDING
 # -------------------------------
-with open("/src/config.yaml", "r") as f:
+
+with open("src/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 SEED = config["system"]["seed"]
@@ -37,10 +38,11 @@ torch.cuda.manual_seed_all(SEED)
 device = torch.device(config["system"]["device"] if torch.cuda.is_available() else "cpu")
 
 # Paths
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 SAVE_DIR = os.path.join(PROJECT_ROOT, "models")
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 os.makedirs(SAVE_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
