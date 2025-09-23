@@ -1,7 +1,11 @@
 import os
-import torch
+import time
+import argparse
 import yaml
+import torch
+import pandas as pd
 from PIL import Image
+import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 import torchvision.models as models
 
@@ -11,12 +15,12 @@ import torchvision.models as models
 with open("./src/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
-IMG_SIZE = config["default"]["img_size"]
+IMG_SIZE = config["training"]["image_size"]
+MODEL_ARCH = config["model"]["architecture"]
 MODEL_PATH = os.path.join("models", "best_model.pth")
+DEVICE = torch.device(config["system"]["device"] if torch.cuda.is_available() else "cpu")
 
-# -------------------------------
-# 2. PREPROCESSING PIPELINE
-# -------------------------------
+# Preprocessing (consistent with training)
 base_transform = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -24,88 +28,97 @@ base_transform = transforms.Compose([
 ])
 
 # -------------------------------
-# 3. LOAD MODEL
+# 2. LOAD MODEL
 # -------------------------------
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def load_model():
+    model = models.efficientnet_b0(weights=None)
+    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
+    model = model.to(DEVICE)
+    model.eval()
+    return model
 
-model = models.efficientnet_b0(weights=None)  # only structure
-model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1)
-
-model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
-model = model.to(device)
-model.eval()
-
-print(f"✅ Model loaded from {MODEL_PATH} on {device}")
+model = load_model()
+print(f"✅ Model loaded from {MODEL_PATH} on {DEVICE}")
 
 # -------------------------------
-# 4. INFERENCE UTILITIES
+# 3. UTILITIES
 # -------------------------------
 def preprocess_image(img: Image.Image) -> torch.Tensor:
-    """
-    Preprocess a PIL image for model inference.
-    Converts grayscale → RGB, resizes, normalizes, returns batch tensor.
-    """
     image = img.convert("L")                            # grayscale
     image = transforms.ToTensor()(image).repeat(3, 1, 1)  # expand to 3 channels
-    image = base_transform(image)                       # resize + normalize
-    return image.unsqueeze(0).to(device)                # add batch dim
+    image = base_transform(image)
+    return image.unsqueeze(0).to(DEVICE)                # add batch dim
 
-def predict_image(img_input) -> tuple:
-    """
-    Run inference on a single image.
-    Args:
-        img_input (str | PIL.Image.Image): path or PIL image
-    Returns:
-        (label: str, probability: float)
-    """
-    if isinstance(img_input, str):       # if path provided
-        img = Image.open(img_input)
-    elif isinstance(img_input, Image.Image):  # if PIL image provided
-        img = img_input
-    else:
-        raise TypeError("img_input must be a file path or PIL.Image")
-
+def predict_image(img_path, return_confidence=False):
+    img = Image.open(img_path)
     tensor = preprocess_image(img)
 
+    start_time = time.time()
     with torch.no_grad():
         output = model(tensor)
         prob = torch.sigmoid(output).item()
+    elapsed = time.time() - start_time
 
     label = "Defected" if prob > 0.5 else "OK"
-    return label, prob
 
-def predict_folder(folder_path: str):
-    """Run inference on all images in a folder and print summary."""
-    ok_count, defect_count = 0, 0
+    result = {
+        "image": img_path,
+        "prediction": label,
+        "confidence": prob,
+        "time": elapsed
+    }
+
+    if return_confidence:
+        print(f"Image: {img_path}")
+        print(f"Prediction: {label}")
+        print(f"Confidence: {prob:.2f} ({prob:.1%})")
+        print(f"Processing time: {elapsed:.2f} seconds\n")
+    else:
+        print(f"{os.path.basename(img_path)} → {label} ({prob:.1%})")
+
+    return result
+
+def predict_folder(folder_path, output_csv=None, visualize=False):
+    results = []
     for fname in os.listdir(folder_path):
         if not fname.lower().endswith((".jpg", ".png", ".jpeg")):
             continue
         img_path = os.path.join(folder_path, fname)
         try:
-            label, prob = predict_image(img_path)
-            print(f"🖼️ {fname} → {label} ({prob:.2%})")
-            if label == "OK":
-                ok_count += 1
-            else:
-                defect_count += 1
+            result = predict_image(img_path)
+            results.append(result)
         except Exception as e:
             print(f"⚠️ Skipped {fname} ({e})")
 
-    print("\n📊 Summary:")
-    print(f"  OK: {ok_count}")
-    print(f"  Defected: {defect_count}")
+    df = pd.DataFrame(results)
+    if output_csv:
+        df.to_csv(output_csv, index=False)
+        print(f"✅ Results saved to {output_csv}")
+
+    if visualize:
+        for r in results[:10]:  # show up to 10 images
+            img = Image.open(r["image"])
+            plt.imshow(img)
+            plt.title(f"{r['prediction']} ({r['confidence']:.1%})")
+            plt.axis("off")
+            plt.show()
 
 # -------------------------------
-# 5. RUN DEMO
+# 4. CLI ENTRY POINT
 # -------------------------------
 if __name__ == "__main__":
-    # Single image test
-    test_image = "defect-detection/data/valid/cast_def_0_15_jpeg.rf.25a9b096e676969ad5ff4fe1e5ee8153.jpg"
-    if os.path.exists(test_image):
-        label, prob = predict_image(test_image)
-        print(f"Single test → {os.path.basename(test_image)}: {label} ({prob:.2%})")
+    parser = argparse.ArgumentParser(description="Defect Detection Inference")
+    parser.add_argument("--image", type=str, help="Path to single image")
+    parser.add_argument("--folder", type=str, help="Path to folder of images")
+    parser.add_argument("--output", type=str, help="CSV file to save results (for folder mode)")
+    parser.add_argument("--confidence", action="store_true", help="Show confidence score for single image")
+    parser.add_argument("--visualize", action="store_true", help="Visualize predictions (folder mode)")
+    args = parser.parse_args()
 
-    # Folder test
-    test_folder = "defect-detection/data/valid"
-    if os.path.exists(test_folder):
-        predict_folder(test_folder)
+    if args.image:
+        predict_image(args.image, return_confidence=args.confidence)
+    elif args.folder:
+        predict_folder(args.folder, output_csv=args.output, visualize=args.visualize)
+    else:
+        print("⚠️ Please provide either --image or --folder")
