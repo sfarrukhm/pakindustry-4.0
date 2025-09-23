@@ -86,7 +86,7 @@ val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_w
 # -------------------------------
 # 3. MODEL SETUP
 # -------------------------------
-if config["model"]["architecture"] == "efficientnet-b0":
+if config["model"]["architecture"] == "efficientnet_b0":
     model = models.efficientnet_b0(weights="IMAGENET1K_V1" if config["model"]["pretrained"] else None)
 else:
     raise ValueError(f"Model {config['model']['architecture']} not supported yet.")
