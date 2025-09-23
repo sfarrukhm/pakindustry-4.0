@@ -218,3 +218,46 @@ if not misclassified.empty:
     print(f"✅ Misclassified samples grid saved at {RESULTS_DIR}/misclassified_samples.png")
 else:
     print("🎉 No misclassified samples found (perfect predictions!)")
+# -------------------------------
+# 7. GENERATE MARKDOWN REPORT
+# -------------------------------
+report_path = os.path.join(RESULTS_DIR, "evaluation_report.md")
+
+with open(report_path, "w") as f:
+    f.write("# 📊 Defect Detection Evaluation Report\n\n")
+
+    f.write("## ✅ Metrics\n")
+    f.write(f"- Accuracy: **{acc:.4f}**\n")
+    f.write(f"- Precision: **{prec:.4f}**\n")
+    f.write(f"- Recall: **{rec:.4f}**\n")
+    f.write(f"- F1-score: **{f1:.4f}**\n")
+    f.write(f"- ROC-AUC: **{rocauc:.4f}**\n")
+    f.write(f"- Evaluation Time: **{elapsed:.2f} sec**\n\n")
+
+    f.write("## 🧮 Confusion Matrix\n")
+    f.write(f"```\n")
+    f.write(f"{'':>12}  Predicted OK | Predicted Defected\n")
+    f.write(f"{'-'*40}\n")
+    f.write(f"Actual OK       {cm[0][0]:>10} | {cm[0][1]:>17}\n")
+    f.write(f"Actual Defected {cm[1][0]:>10} | {cm[1][1]:>17}\n")
+    f.write(f"```\n\n")
+    f.write(f"![Confusion Matrix](confusion_matrix_eval.png)\n\n")
+
+    f.write("## 📈 Curves\n")
+    f.write(f"- [ROC Curve](roc_curve.png)\n")
+    f.write(f"- [Precision-Recall Curve](precision_recall_curve.png)\n\n")
+
+    f.write("## 🔍 Misclassified Samples\n")
+    if not misclassified.empty:
+        f.write(f"- Total Misclassified: **{len(misclassified)}**\n")
+        f.write(f"- [CSV with details](misclassified_samples.csv)\n")
+        f.write(f"- Example grid plot:\n\n")
+        f.write(f"![Misclassified Samples](misclassified_samples.png)\n\n")
+    else:
+        f.write("🎉 No misclassified samples found (perfect predictions!)\n\n")
+
+    f.write("## 📂 Data Exports\n")
+    f.write("- [Metrics CSV](metrics.csv)\n")
+    f.write("- [All Predictions CSV](all_predictions.csv)\n")
+
+print(f"📝 Evaluation report generated at {report_path}")
