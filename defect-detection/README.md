@@ -111,34 +111,52 @@ defect-detection/
 
 ---
 
-## 📊 Dataset Information
+📊 Dataset Information
 
 ### Dataset Details
 
-- **Source**: Licensed industrial defect dataset with proper audit trail
-- **Classes**: 2 (OK, Defected)
-- **Total Images**: 2,847 images
-- **Training Set**: 2,278 images (80%)
-- **Validation Set**: 284 images (10%) 
-- **Test Set**: 285 images (10%)
-- **Image Resolution**: 224x224 pixels (resized)
-- **Format**: JPG/PNG
+- **Source**: `Roboflow Universe - Open source casting defects dataset`
+- **Dataset ID**: cast-defect-w5mh1
+- **Classes**: 2 (OK, Defective)
+- **Total Images**: 7,284 images
+- **Task Type**: Classification
+- **License**: Open source
+- **Created**: October 2023
 
-### Data Distribution
+### Train Data Distribution
 
-| Class    | Training | Validation | Test | Total |
-| -------- | -------- | ---------- | ---- | ----- |
-| OK       | 1,139    | 142        | 143  | 1,424 |
-| Defected | 1,139    | 142        | 142  | 1,423 |
+Total Images in train set: 5101
 
-### Compliance & Audit Trail
+| Class     | Count | Percentage |
+| --------- | ----- | ---------- |
+| OK        | 2916  | 57.17%     |
+| Defective | 2185  | 42.83%     |
 
-- ✅ All datasets are properly licensed for competition use
-- ✅ Complete data lineage documented in `data/README.dataset.txt`
-- ✅ No proprietary or confidential data included
-- ✅ Reproducible train/validation/test splits with fixed seed
+### Dataset Characteristics
 
----
+- **Domain**: Industrial casting defect detection
+- **Quality**: Production-grade industrial images
+- **Balance**: Slightly imbalanced between OK and defective samples
+
+### Data Augmentation
+
+- Random horizontal/vertical flips
+- Random rotation (±15°)
+- Random brightness/contrast adjustment
+- Gaussian noise injection
+- All applied during training only
+
+### Usage & Access
+
+- **Platform**: Roboflow Universe
+- **URL**: https://universe.roboflow.com/casting-defects/cast-defect-w5mh1
+
+### Compliance
+
+- ✅ Open source license
+- ✅ Publicly available dataset
+
+
 
 ## 🎯 Training
 
@@ -159,10 +177,6 @@ training:
   patience: 10
   image_size: 224
 
-data:
-  train_split: 0.8
-  val_split: 0.1
-  test_split: 0.1
 
 system:
   seed: 42
