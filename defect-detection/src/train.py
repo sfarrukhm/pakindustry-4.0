@@ -10,7 +10,7 @@ from PIL import Image
 
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score,
-    f1_score, roc_auc_score, confusion_matrix
+    f1_score, roc_auc_score, confusion_matrix,roc_curve, precision_recall_curve
 )
 
 import torch
@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 import torchvision.models as models
 
-from dataset import CastDefectDataset
+from src.dataset import CastDefectDataset
 
 
 # -------------------------------
@@ -190,9 +190,37 @@ plt.xlabel("Predicted")
 plt.ylabel("True")
 
 plot_path = os.path.join(RESULTS_DIR, "confusion_matrix_train.png")
-plt.savefig(plot_path, dpi=300, bbox_inches="tight")
+plt.savefig(plot_path, dpi=100, bbox_inches="tight")
 print(f"✅ Confusion matrix saved to {plot_path}")
+# -------------------------------
+# 6. ROC Curve
+# -------------------------------
+fpr, tpr, _ = roc_curve(targets, preds)
+plt.figure(figsize=(6, 5))
+plt.plot(fpr, tpr, label=f"AUC = {auc:.4f}")
+plt.plot([0, 1], [0, 1], linestyle="--", color="gray")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve")
+plt.legend()
+roc_path = os.path.join(RESULTS_DIR, "roc_curve_train.png")
+plt.savefig(roc_path, dpi=100, bbox_inches="tight")
+print(f"✅ ROC curve saved to {roc_path}")
+plt.close()
 
+# -------------------------------
+# 7. Precision-Recall Curve
+# -------------------------------
+precisions, recalls, _ = precision_recall_curve(targets, preds)
+plt.figure(figsize=(6, 5))
+plt.plot(recalls, precisions)
+plt.xlabel("Recall")
+plt.ylabel("Precision")
+plt.title("Precision-Recall Curve")
+pr_path = os.path.join(RESULTS_DIR, "precision_recall_curve_train.png")
+plt.savefig(pr_path, dpi=100, bbox_inches="tight")
+print(f"✅ Precision-Recall curve saved to {pr_path}")
+plt.close()
 # Final Summary
 print("\n📌 Final Metrics:")
 print(f"Accuracy : {acc:.4f}")
