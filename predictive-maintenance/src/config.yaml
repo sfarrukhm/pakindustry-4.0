@@ -1,0 +1,34 @@
+# ==========================
+# PREDICTIVE MAINTENANCE CONFIG
+# ==========================
+
+data:
+  train_path: "data/CMaps/train_FD001.txt"
+  test_path:  "data/CMaps/test_FD001.txt"
+  rul_path:   "data/CMaps/RUL_FD001.txt"
+  max_rul: 125             # cap for RUL values
+
+model:
+  architecture: "LSTM"
+  input_dim: null           # automatically inferred after feature selection
+  hidden_dim: 64
+  num_layers: 2
+  dropout: 0.2
+  output_dim: 1
+
+training:
+  window_size: 30
+  batch_size: 64
+  epochs: 60
+  learning_rate: 0.001
+  patience: 10              # early stopping patience
+  train_split: 0.7
+  val_split: 0.15
+
+system:
+  seed: 42
+  device: "cuda"
+
+preprocessing:
+  scaling: "standard"       # StandardScaler
+  feature_engineering: true # add engineered features like avg_temp, mech_energy
