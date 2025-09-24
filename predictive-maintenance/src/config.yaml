@@ -20,10 +20,8 @@ model:
 training:
   batch_size: 64
   epochs: 60
-  learning_rate: 0.001
   patience: 10              # early stopping patience
-  train_split: 0.7
-  val_split: 0.15
+
   lr: 0.001
   alpha: 0.8               # for weighted loss function
 
