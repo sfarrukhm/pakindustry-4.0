@@ -20,10 +20,10 @@ model:
 training:
   batch_size: 64
   epochs: 60
-  patience: 10              # early stopping patience
+  patience: 15              # early stopping patience
 
   lr: 0.001
-  alpha: 0.9               # for weighted loss function
+  alpha: 0.5               # for weighted loss function
 
 system:
   seed: 42
