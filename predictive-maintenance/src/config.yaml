@@ -23,7 +23,7 @@ training:
   patience: 10              # early stopping patience
 
   lr: 0.001
-  alpha: 0.8               # for weighted loss function
+  alpha: 0.9               # for weighted loss function
 
 system:
   seed: 42
