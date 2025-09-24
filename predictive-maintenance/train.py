@@ -35,7 +35,7 @@ feature_cols = create_feature_cols(train_path, test_path, rul_path)
 model, history, y_pred, y_true = run_pipeline(
     train_path, test_path, rul_path,
     feature_cols=feature_cols,
-    epochs=2,
+    epochs=60,
     window_size=window_size,
     batch_size=batch_size,
     lr=lr,
