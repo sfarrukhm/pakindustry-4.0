@@ -22,6 +22,12 @@ train_path = config["data"]["train_path"]
 test_path  = config["data"]["test_path"]
 rul_path   = config["data"]["rul_path"]
 save_path  = "models/"
+
+batch_size = config["training"]["batch_size"]
+window_size = config["data"]["window_size"]
+lr = config["training"]['lr']
+alpha = config["training"]['alpha']
+
 # Step 1: Create feature columns (includes feature engineering + cleanup)
 feature_cols = create_feature_cols(train_path, test_path, rul_path)
 
@@ -30,6 +36,9 @@ model, history, y_pred, y_true = run_pipeline(
     train_path, test_path, rul_path,
     feature_cols=feature_cols,
     epochs=2,
-    window_size=30, 
+    window_size=window_size,
+    batch_size=batch_size,
+    lr=lr,
+    alpha=alpha,
     device="cuda" if torch.cuda.is_available() else "cpu",
 )

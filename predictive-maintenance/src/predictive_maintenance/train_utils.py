@@ -10,7 +10,7 @@ from src.predictive_maintenance.models import LSTM_RUL, train_lstm_model
 from src.predictive_maintenance.metrics import plot_histogram, plot_scatter, print_score
 
 def run_pipeline(train_path, test_path, rul_path, 
-                 feature_cols,epochs, window_size=30, batch_size=64, 
+                 feature_cols,epochs, window_size=30, batch_size=64,lr=0.001,alpha=0.5,  
                  train_split=0.7, val_split=0.15, device="cuda",):
 
     # 1. Load data
@@ -46,7 +46,7 @@ def run_pipeline(train_path, test_path, rul_path,
 
     # 6. Train model
     input_dim = len(feature_cols)
-    model, history = train_lstm_model(train_loader, val_loader, input_dim, epochs=epochs, device=device)
+    model, history = train_lstm_model(train_loader, val_loader, input_dim, lr=lr,alpha=alpha, epochs=epochs, device=device)
 
    
 
@@ -70,10 +70,9 @@ def run_pipeline(train_path, test_path, rul_path,
             y_true.extend(y.cpu().numpy())
             y_pred.extend(outputs.cpu().numpy())
     y_true, y_pred = np.array(y_true), np.array(y_pred)
-    print_score(y_true, y_pred)
-    plot_scatter(y_true, y_pred)
-    plot_histogram(y_true, y_pred)
-
+    print_score(y_true, y_pred, prefix="train")
+    plot_scatter(y_true, y_pred, prefix="train")
+    plot_histogram(y_true, y_pred, prefix="train")
     # 8. Evaluate on split test set
     print("\nEvaluate on split test set:")
     y_true, y_pred = [], []

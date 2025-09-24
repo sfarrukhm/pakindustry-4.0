@@ -48,13 +48,13 @@ class LSTM_RUL(nn.Module):
         out = self.fc(out)
         return out
 
-def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50], dropout=0.2, 
-                     lr=0.001, epochs=120, patience=15, device="cuda", save_dir="./models/pm/"):
+def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50], dropout=0.2, alpha=0.5,
+                     lr=0.001, epochs=60, patience=15, device="cuda", save_dir="./models"):
     
     os.makedirs(save_dir, exist_ok=True)
 
     model = LSTM_RUL(input_dim, hidden_units, dropout, use_gru=True).to(device)
-    criterion = CombinedLoss(alpha=0.8)  # 50% MSE, 50% NASA
+    criterion = CombinedLoss(alpha=0.8) 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0.01)
 
     def lr_lambda(step): return 0.9 ** (step / 1000)
