@@ -1,92 +1,104 @@
-# src/train_utils.py
-import torch
 import numpy as np
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
+import torch
 import os
+from src.predictive_maintenance.data import load_data, add_engineered_features, scale
+from src.predictive_maintenance.datasets import make_dataloader, make_test_windows
+from src.predictive_maintenance.models import LSTM_RUL, train_lstm_model
+from src.predictive_maintenance.metrics import plot_histogram, plot_scatter, print_score
 
-def print_score(y_true, y_pred):
-    y_true = y_true.cpu().numpy() if torch.is_tensor(y_true) else y_true
-    y_pred = y_pred.cpu().numpy() if torch.is_tensor(y_pred) else y_pred
+def run_pipeline(train_path, test_path, rul_path, 
+                 feature_cols,epochs, window_size=30, batch_size=64, 
+                 train_split=0.7, val_split=0.15, device="cuda",):
 
-    mae = mean_absolute_error(y_true, y_pred)
-    rmse = mean_squared_error(y_true, y_pred, squared=False)
-    r2 = r2_score(y_true, y_pred)
-    errors = np.clip(y_pred - y_true, -50, 50)
-    nasa_terms = [np.exp(-err/10) - 1 if err < 0 else np.exp(err/13) - 1 for err in errors]
-    nasa_score = np.sum(nasa_terms)
-    print(f"MAE: {mae:.2f}, RMSE: {rmse:.2f}, R2: {r2:.2f}, NASA: {nasa_score:.2f}")
-    return {"MAE": mae, "RMSE": rmse, "R2": r2, "NASA": nasa_score}
+    # 1. Load data
+    train_df, test_df, test_rul = load_data(train_path, test_path, rul_path)
 
+    # 2. Feature engineering
+    train_df = add_engineered_features(train_df)
+    test_df = add_engineered_features(test_df)
 
-def plot_scatter(y_true, y_pred, save_path=None):
-    y_true = y_true.cpu().numpy() if torch.is_tensor(y_true) else y_true
-    y_pred = y_pred.cpu().numpy() if torch.is_tensor(y_pred) else y_pred
-    plt.figure(figsize=(8,6))
-    plt.scatter(y_true, y_pred, alpha=0.7)
-    max_val = max(y_true.max(), y_pred.max())
-    plt.plot([0, max_val], [0, max_val], 'r--')
-    plt.xlabel("True RUL"); plt.ylabel("Predicted RUL"); plt.title("True vs Predicted RUL"); plt.grid()
-    if save_path: plt.savefig(save_path, dpi=100, bbox_inches="tight"); plt.close()
-    else: plt.show()
+    # 3. Scaling
+    train_df, test_df = scale(train_df, test_df, feature_cols)
 
+    # 4. Train/val/test split (based on engine_number)
+    engine_numbers = train_df["engine_number"].unique()
+    np.random.seed(42)
+    np.random.shuffle(engine_numbers)
 
-def plot_histogram(y_true, y_pred, save_path=None):
-    y_true = y_true.cpu().numpy() if torch.is_tensor(y_true) else y_true
-    y_pred = y_pred.cpu().numpy() if torch.is_tensor(y_pred) else y_pred
-    errors = y_pred - y_true
-    plt.figure(figsize=(10,6))
-    sns.histplot(errors, bins=50, kde=True)
-    plt.xlabel("Prediction Error"); plt.ylabel("Frequency"); plt.title("Prediction Error Distribution")
-    if save_path: plt.savefig(save_path, dpi=100, bbox_inches="tight"); plt.close()
-    else: plt.show()
+    n_train = int(train_split * len(engine_numbers))
+    n_val = int(val_split * len(engine_numbers))
 
+    train_ids = engine_numbers[:n_train]
+    val_ids = engine_numbers[n_train:n_train+n_val]
+    test_ids = engine_numbers[n_train+n_val:]
 
-def train_lstm_model(train_loader, val_loader, input_dim, epochs=50, device="cuda", lr=0.001, patience=10):
-    from .models import LSTMModel, save_model
+    train_df_split = train_df[train_df["engine_number"].isin(train_ids)]
+    val_df_split   = train_df[train_df["engine_number"].isin(val_ids)]
+    test_df_split  = train_df[train_df["engine_number"].isin(test_ids)]
 
-    model = LSTMModel(input_dim).to(device)
-    criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    best_loss, best_model = float('inf'), None
-    history = {"train_loss": [], "val_loss": []}
-    wait = 0
+    # 5. Build DataLoaders
+    train_loader = make_dataloader(train_df_split, feature_cols, window_size, batch_size, shuffle=True)
+    val_loader   = make_dataloader(val_df_split, feature_cols, window_size, batch_size, shuffle=False)
+    test_loader  = make_dataloader(test_df_split, feature_cols, window_size, batch_size, shuffle=False)
 
-    for epoch in range(epochs):
-        model.train()
-        train_losses = []
-        for X, y in train_loader:
+    # 6. Train model
+    input_dim = len(feature_cols)
+    model, history = train_lstm_model(train_loader, val_loader, input_dim, epochs=epochs, device=device)
+
+   
+
+    ### ADDED: Load best model for evaluation (if exists)
+    best_model_path = "./models/best.pth"
+    if os.path.exists(best_model_path):
+        best_model = LSTM_RUL(input_dim).to(device)
+        best_model.load_state_dict(torch.load(best_model_path, map_location=device))
+        best_model.eval()
+        model = best_model  # overwrite model with best version
+        print("✅ Loaded best model for evaluation")
+
+    # 7. Evaluate on validation set
+    print("\nEvaluate on validation set:")
+    y_true, y_pred = [], []
+    model.eval()
+    with torch.no_grad():
+        for X, y in val_loader:
             X, y = X.to(device), y.to(device)
-            optimizer.zero_grad()
-            output = model(X)
-            loss = criterion(output, y)
-            loss.backward()
-            optimizer.step()
-            train_losses.append(loss.item())
-        train_loss = np.mean(train_losses)
+            outputs = model(X).squeeze()
+            y_true.extend(y.cpu().numpy())
+            y_pred.extend(outputs.cpu().numpy())
+    y_true, y_pred = np.array(y_true), np.array(y_pred)
+    print_score(y_true, y_pred)
+    plot_scatter(y_true, y_pred)
+    plot_histogram(y_true, y_pred)
 
-        model.eval()
-        val_losses = []
-        with torch.no_grad():
-            for X, y in val_loader:
-                X, y = X.to(device), y.to(device)
-                val_loss = criterion(model(X), y)
-                val_losses.append(val_loss.item())
-        val_loss = np.mean(val_losses)
+    # 8. Evaluate on split test set
+    print("\nEvaluate on split test set:")
+    y_true, y_pred = [], []
+    with torch.no_grad():
+        for X, y in test_loader:
+            X, y = X.to(device), y.to(device)
+            outputs = model(X).squeeze()
+            y_true.extend(y.cpu().numpy())
+            y_pred.extend(outputs.cpu().numpy())
+    y_true, y_pred = np.array(y_true), np.array(y_pred)
+    print_score(y_true, y_pred)
+    plot_scatter(y_true, y_pred)
+    plot_histogram(y_true, y_pred)
 
-        history["train_loss"].append(train_loss)
-        history["val_loss"].append(val_loss)
-        print(f"Epoch {epoch+1}/{epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+    # 9. Evaluate on real test set (last windows only)
+    print("\nEvaluate on real test set:")
+    X_test, engine_numbers = make_test_windows(test_df, feature_cols, window_size)
+    X_test = X_test.to(device)
+    with torch.no_grad():
+        y_pred = model(X_test).squeeze().cpu().numpy()
+    y_true = np.array(test_rul[:len(engine_numbers)])  # ground truth
 
-        if val_loss < best_loss:
-            best_loss = val_loss
-            save_model(model, "./models/pm/best.pth")
-            wait = 0
-        else:
-            wait += 1
-            if wait >= patience:
-                print("Early stopping triggered")
-                break
+    print_score(y_true, y_pred)
+    plot_scatter(y_true, y_pred)
+    plot_histogram(y_true, y_pred)
 
-    return model, history
+    return model, history, y_pred, y_true
+
