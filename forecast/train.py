@@ -5,7 +5,7 @@ from sklearn.metrics import root_mean_squared_error, mean_absolute_error
 import joblib
 import os
 import random
-
+import json
 SEED = 42
 np.random.seed(SEED)
 random.seed(SEED)
@@ -114,7 +114,20 @@ print(f"Validation MAE:  {mae:.2f}")
 print(f"Validation sMAPE: {smape(y_val, preds):.2f}%")
 print(f"Validation NRMSE: {nrmse(y_val, preds):.3f}")
 
-# ========== Save Model ==========
+
+# Save model
 os.makedirs("models", exist_ok=True)
 joblib.dump(model, "models/best_model.pkl")
-print("✅ Model saved to models/best_model.pkl")
+
+# Save validation results
+results = {
+    "rmse": float(rmse),
+    "mae": float(mae),
+    "smape": float(smape(y_val, preds)),
+    "nrmse": float(nrmse(y_val, preds))
+}
+os.makedirs("results", exist_ok=True)
+with open("results/val_metrics.json", "w") as f:
+    json.dump(results, f, indent=4)
+
+print("✅ Model and metrics saved.")
