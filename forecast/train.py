@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import lightgbm as lgb
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.metrics import root_mean_squared_error, mean_absolute_error
 import joblib
 import os
 
@@ -12,7 +12,7 @@ def smape(y_true, y_pred):
     ) * 100
 
 def nrmse(y_true, y_pred):
-    return np.sqrt(mean_squared_error(y_true, y_pred)) / np.mean(y_true)
+    return np.sqrt(root_mean_squared_error(y_true, y_pred)) / np.mean(y_true)
 
 def create_features(df):
     df = df.copy()
@@ -100,7 +100,7 @@ model = lgb.train(
 
 # ========== Evaluate ==========
 preds = model.predict(X_val)
-rmse = mean_squared_error(y_val, preds, squared=False)
+rmse = root_mean_squared_error(y_val, preds)
 mae = mean_absolute_error(y_val, preds)
 print(f"Validation RMSE: {rmse:.2f}")
 print(f"Validation MAE:  {mae:.2f}")

@@ -1,9 +1,9 @@
 import os
 import yaml
 import torch
-from src.dataset import make_test_windows
-from src.model import LSTMModel
-from src.data_utils import load_data, add_engineered_features, scale
+from src.predictive_maintenance.datasets import make_test_windows
+from src.predictive_maintenance.models import LSTM_RUL
+from src.predictive_maintenance.data import load_data, add_engineered_features, scale
 
 # -------------------------------
 # CONFIG
@@ -32,7 +32,7 @@ train_df, test_df = scale(train_df, test_df, FEATURE_COLS)
 # LOAD MODEL
 # -------------------------------
 input_dim = len(FEATURE_COLS)
-model = LSTMModel(input_dim).to(DEVICE)
+model = LSTM_RUL(input_dim).to(DEVICE)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 model.eval()
 
