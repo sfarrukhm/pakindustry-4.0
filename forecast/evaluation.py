@@ -15,7 +15,7 @@ def nrmse(y_true, y_pred):
     return np.sqrt(root_mean_squared_error(y_true, y_pred)) / np.mean(y_true)
 
 # ===== Load validation data =====
-val = pd.read_csv("results/validation_data.csv")  # save this during training
+val = pd.read_csv("results/test.csv")  # save this during training
 y_val = val["orders"]
 preds = val["preds"]
 
