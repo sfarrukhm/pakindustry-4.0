@@ -57,21 +57,40 @@ forecast/
 **Hackathon Criterion:** Supply chain forecast error ≤ 10% (percentage metric). **Current model significantly exceeds this requirement** with both sMAPE (1.97%) and NRMSE (3.2%) well below the threshold.
 
 ## How to Run
+1. **Clone the repository**
+   
+   ```bash
+   git clone https://github.com/sfarrukhm/pakindustry-4.0.git
+   ```
 
-**Training:**
-```bash
-python train.py
-```
+2. **Create virtual environment** (recommended)
+   
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
 
-**Inference:**
-```bash
-python inference.py
-```
+3. **Install dependencies**
+   
+   ```bash
+   pip install -r requirements.txt
+   cd defect-detection
+   ```
 
-**Evaluation:**
-```bash
-python evaluation.py
-```
+4. **Training:**
+    ```bash
+    python train.py
+    ```
+
+5. **Inference:**
+    ```bash
+    python inference.py
+    ```
+
+6. **Evaluation:**
+    ```bash
+    python evaluation.py
+    ```
 
 **Output Files:**
 - `models/best_model.pkl` - Trained LightGBM model
