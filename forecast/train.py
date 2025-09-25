@@ -4,6 +4,13 @@ import lightgbm as lgb
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error
 import joblib
 import os
+import random
+
+SEED = 42
+np.random.seed(SEED)
+random.seed(SEED)
+os.environ["PYTHONHASHSEED"] = str(SEED)
+
 
 # ========== Helper functions ==========
 def smape(y_true, y_pred):
