@@ -2,14 +2,14 @@ import os
 import yaml
 import torch
 import numpy as np
-from src.predictive_maintenance.metrics import print_score, plot_scatter, plot_histogram
-from src.predictive_maintenance.datasets import make_test_windows
+from src.predictive_maintenance.utils import print_score, plot_scatter, plot_histogram
 from src.predictive_maintenance.models import LSTM_RUL
 from src.predictive_maintenance.data import (
     load_data,
     add_engineered_features,
     scale,
-    create_feature_cols,   # ✅ consistent with training
+    create_feature_cols,
+    make_test_windows
 )
 
 # -------------------------------
