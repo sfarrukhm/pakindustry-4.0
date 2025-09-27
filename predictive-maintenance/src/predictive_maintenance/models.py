@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 from torch.optim.lr_scheduler import LambdaLR
 import os
-from src.predictive_maintenance.losses import CombinedLoss,evaluate_metrics
+from .losses import CombinedLoss,evaluate_metrics
 
 class CNN_LSTM_RUL(nn.Module):
     def __init__(self, input_dim, hidden_units=[100, 50], dropout=0.2, conv_channels=[32, 64], kernel_size=5):
