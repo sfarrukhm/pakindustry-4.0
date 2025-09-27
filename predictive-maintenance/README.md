@@ -102,23 +102,40 @@ predictive-maintenance/
 The model demonstrates strong predictive accuracy with MAE values consistently below 14 cycles across all evaluation sets. The RMSE values (16-19 cycles) indicate relatively few large prediction errors. Most notably, the NASA Official Test Set achieves an exceptional NASA Score of 681.43, significantly outperforming the validation and split test results. This suggests the model generalizes well to the standardized evaluation benchmark and provides safety-appropriate conservative predictions for real-world deployment.
 
 ## How to Run
+1. **Clone the repository**
+   
+   ```bash
+   git clone https://github.com/sfarrukhm/pakindustry-4.0.git
+   ```
 
-### Training
-```bash
-python train.py
-```
-*Trains LSTM model, saves best checkpoint, and generates training curves*
+2. **Create virtual environment** (recommended)
+   
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
 
-### Evaluation  
-```bash
-python evaluation.py
-```
-*Comprehensive evaluation with metrics, plots, and error analysis*
+3. **Install dependencies**
+   
+   ```bash
+   pip install -r requirements.txt
+   cd predictive-maintenance
+   ```
 
-### Inference
-```bash
-python inference.py --engine <engine_id>
-```
+4. **Training:**
+    ```bash
+    python train.py
+    ```
+
+5. **Inference:**
+    ```bash
+    python inference.py
+    ```
+
+6. **Evaluation:**
+    ```bash
+    python evaluation.py
+    ```
 *Predict RUL for specific engine using trained model*
 
 ### Configuration
@@ -145,7 +162,7 @@ Edit `config.yaml` to modify:
 
 **Core Dependencies:**
 ```
-python>=3.8
+python>=3.12.0
 torch>=1.12.0
 numpy>=1.21.0
 pandas>=1.3.0

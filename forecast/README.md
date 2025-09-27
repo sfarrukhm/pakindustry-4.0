@@ -74,7 +74,7 @@ forecast/
    
    ```bash
    pip install -r requirements.txt
-   cd defect-detection
+   cd forecast
    ```
 
 4. **Training:**
@@ -133,7 +133,3 @@ os.environ["PYTHONHASHSEED"] = str(SEED)
 ## Presentation Summary for Judges
 
 We developed a machine learning solution to forecast daily orders across 7 European warehouses for Rohlik's supply chain optimization. Our approach combines LightGBM gradient boosting with carefully engineered features including historical lag patterns, rolling trends, and operational event calendars spanning over 3 years of data. Key features capture weekly seasonality, warehouse-specific patterns, and external factors like holidays and operational shutdowns. We validated using the most recent 14 days as a holdout set, achieving 1.97% symmetric mean absolute percentage error - dramatically exceeding the competition's 10% accuracy requirement. This level of precision enables reliable inventory planning, reduces stockouts and overstocking costs, and supports efficient warehouse operations across multiple countries. Immediate next steps include warehouse-specific modeling and integration of additional external data sources for even greater accuracy.
-
-## Contact & Attribution
-
-Team Industrial AI - Techathon 2025
