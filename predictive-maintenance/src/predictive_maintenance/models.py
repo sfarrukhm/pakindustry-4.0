@@ -105,7 +105,7 @@ def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50],
     scheduler = LambdaLR(optimizer, lr_lambda=lr_lambda)
 
     best_val_loss, patience_counter, best_model_state = np.inf, 0, None
-    history = {"train_loss": [], "val_loss": [], "val_mae": [], "val_rmse": [], "val_mape": []}
+    history = {"train_loss": [], "val_loss": [], "val_mae": [], "val_rmse": [], "val_mape": [],"val_nasa": []}
 
     pbar = tqdm(range(epochs), desc="Training", unit="epoch", ncols=100)
 
@@ -141,7 +141,7 @@ def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50],
 
         train_loss, val_loss = np.mean(train_losses), np.mean(val_losses)
         y_true_all, y_pred_all = torch.cat(y_true_all), torch.cat(y_pred_all)
-        mae, rmse, mape, _ = evaluate_metrics(y_true_all, y_pred_all)
+        mae, rmse, mape, nasa = evaluate_metrics(y_true_all, y_pred_all)
 
         # --------------------
         # History tracking
@@ -151,6 +151,7 @@ def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50],
         history["val_mae"].append(mae)
         history["val_rmse"].append(rmse)
         history["val_mape"].append(mape)
+        history["val_nasa"].append(nasa)
         # --------------------
         # Early stopping
         # --------------------

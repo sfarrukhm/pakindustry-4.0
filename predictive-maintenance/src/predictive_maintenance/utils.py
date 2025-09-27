@@ -35,20 +35,20 @@ def print_score(y_true, y_pred, prefix=""):
     # NASA scoring function (punishes late predictions more)
     errors = np.clip(y_pred - y_true, -50, 50)
     nasa_terms = [np.exp(-err/10) - 1 if err < 0 else np.exp(err/13) - 1 for err in errors]
-    # nasa_score = np.sum(nasa_terms)
+    nasa_score = np.sum(nasa_terms)
 
     metrics = {
         "MAE": mae,
         "RMSE": rmse,
         "MAPE": mape,
-        # "NASA": nasa_score
+        "NASA": nasa_score
     }
 
     # Print neatly
     print(f"MAE       : {mae:.2f}")
     print(f"RMSE      : {rmse:.2f}")
     print(f"MAPE        : {mape:.2f}")
-    # print(f"NASA Score: {nasa_score:.2f}")
+    print(f"NASA Score: {nasa_score:.2f}")
 
     # Save metrics
     if prefix:
@@ -156,7 +156,7 @@ def run_pipeline(train_path, test_path, rul_path,
     ### ADDED: Load best model for evaluation (if exists)
     best_model_path = "./models/best.pth"
     if os.path.exists(best_model_path):
-        best_model = CNN_LSTM_RUL(input_dim).to(device)
+        best_model = BiLSTM_GRU_RUL(input_dim).to(device)
         best_model.load_state_dict(torch.load(best_model_path, map_location=device))
         best_model.eval()
         model = best_model  # overwrite model with best version
