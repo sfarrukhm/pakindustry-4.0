@@ -8,7 +8,7 @@ import torch.nn as nn
 import os
 
 from .data import  make_dataloader, make_test_windows, load_data, add_engineered_features, scale
-from .models import CNN_LSTM_RUL, train_lstm_model
+from .models import BiLSTM_GRU_RUL, train_lstm_model
 
 import warnings
 warnings.filterwarnings("ignore")
