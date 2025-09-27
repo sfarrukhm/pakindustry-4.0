@@ -7,50 +7,87 @@ from torch.optim.lr_scheduler import LambdaLR
 import os
 from .losses import CombinedLoss,evaluate_metrics
 
-class CNN_LSTM_RUL(nn.Module):
-    def __init__(self, input_dim, hidden_units=[100, 50], dropout=0.2, conv_channels=[32, 64], kernel_size=5):
+# class CNN_LSTM_RUL(nn.Module):
+    # def __init__(self, input_dim, hidden_units=[100, 50], dropout=0.2, conv_channels=[32, 64], kernel_size=5):
+    #     super().__init__()
+
+    #     # 1D CNN layers
+    #     self.conv1 = nn.Conv1d(input_dim, conv_channels[0], kernel_size=kernel_size, padding=kernel_size//2)
+    #     self.bn1 = nn.BatchNorm1d(conv_channels[0])
+    #     self.conv2 = nn.Conv1d(conv_channels[0], conv_channels[1], kernel_size=kernel_size, padding=kernel_size//2)
+    #     self.bn2 = nn.BatchNorm1d(conv_channels[1])
+    #     self.relu = nn.ReLU()
+    #     self.pool = nn.MaxPool1d(kernel_size=2, stride=2)
+
+    #     # LSTM (unidirectional only → practical deployment)
+    #     self.lstm1 = nn.LSTM(conv_channels[1], hidden_units[0], batch_first=True, bidirectional=False)
+    #     self.norm1 = nn.LayerNorm(hidden_units[0])
+    #     self.dropout1 = nn.Dropout(dropout)
+
+    #     self.lstm2 = nn.LSTM(hidden_units[0], hidden_units[1], batch_first=True, bidirectional=False)
+    #     self.norm2 = nn.LayerNorm(hidden_units[1])
+    #     self.dropout2 = nn.Dropout(dropout)
+
+    #     # Fully connected layer
+    #     self.fc = nn.Linear(hidden_units[1], 1)
+
+    # def forward(self, x):
+    #     # x: (batch, seq_len, input_dim)
+    #     x = x.permute(0, 2, 1)                # → (batch, input_dim, seq_len)
+    #     x = self.relu(self.bn1(self.conv1(x)))  # → (batch, conv1, seq_len)
+    #     x = self.pool(x)
+    #     x = self.relu(self.bn2(self.conv2(x)))  # → (batch, conv2, seq_len/2)
+    #     x = self.pool(x)
+    #     x = x.permute(0, 2, 1)                # → (batch, seq_len_reduced, conv_channels[-1])
+
+    #     # LSTM layers
+    #     out, _ = self.lstm1(x)
+    #     out = self.norm1(out)
+    #     out = self.dropout1(out)
+
+    #     out, _ = self.lstm2(out)
+    #     out = self.norm2(out)
+    #     out = self.dropout2(out)
+
+    #     # Last timestep
+    #     out = out[:, -1, :]
+    #     out = self.fc(out)
+    #     return out
+class BiLSTM_GRU_RUL(nn.Module):
+    def __init__(self, input_dim, hidden_units=[100, 50], dropout=0.2):
         super().__init__()
 
-        # 1D CNN layers
-        self.conv1 = nn.Conv1d(input_dim, conv_channels[0], kernel_size=kernel_size, padding=kernel_size//2)
-        self.bn1 = nn.BatchNorm1d(conv_channels[0])
-        self.conv2 = nn.Conv1d(conv_channels[0], conv_channels[1], kernel_size=kernel_size, padding=kernel_size//2)
-        self.bn2 = nn.BatchNorm1d(conv_channels[1])
-        self.relu = nn.ReLU()
-        self.pool = nn.MaxPool1d(kernel_size=2, stride=2)
-
-        # LSTM (unidirectional only → practical deployment)
-        self.lstm1 = nn.LSTM(conv_channels[1], hidden_units[0], batch_first=True, bidirectional=False)
-        self.norm1 = nn.LayerNorm(hidden_units[0])
+        # First layer: BiLSTM
+        self.lstm1 = nn.LSTM(
+            input_size=input_dim,
+            hidden_size=hidden_units[0],
+            batch_first=True,
+            bidirectional=True
+        )
+        self.norm1 = nn.LayerNorm(hidden_units[0] * 2)
         self.dropout1 = nn.Dropout(dropout)
 
-        self.lstm2 = nn.LSTM(hidden_units[0], hidden_units[1], batch_first=True, bidirectional=False)
-        self.norm2 = nn.LayerNorm(hidden_units[1])
+        # Second layer: GRU (unidirectional)
+        self.gru = nn.GRU(
+            input_size=hidden_units[0] * 2,
+            hidden_size=hidden_units[1],
+            batch_first=True,
+            bidirectional=False
+        )
         self.dropout2 = nn.Dropout(dropout)
 
-        # Fully connected layer
+        # Fully connected output
         self.fc = nn.Linear(hidden_units[1], 1)
 
     def forward(self, x):
-        # x: (batch, seq_len, input_dim)
-        x = x.permute(0, 2, 1)                # → (batch, input_dim, seq_len)
-        x = self.relu(self.bn1(self.conv1(x)))  # → (batch, conv1, seq_len)
-        x = self.pool(x)
-        x = self.relu(self.bn2(self.conv2(x)))  # → (batch, conv2, seq_len/2)
-        x = self.pool(x)
-        x = x.permute(0, 2, 1)                # → (batch, seq_len_reduced, conv_channels[-1])
-
-        # LSTM layers
-        out, _ = self.lstm1(x)
+        out, _ = self.lstm1(x)         # → (batch, seq_len, hidden*2)
         out = self.norm1(out)
         out = self.dropout1(out)
 
-        out, _ = self.lstm2(out)
-        out = self.norm2(out)
+        out, _ = self.gru(out)         # → (batch, seq_len, hidden)
         out = self.dropout2(out)
 
-        # Last timestep
-        out = out[:, -1, :]
+        out = out[:, -1, :]            # last timestep
         out = self.fc(out)
         return out
 
@@ -60,7 +97,7 @@ def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50],
     
     os.makedirs(save_dir, exist_ok=True)
 
-    model = CNN_LSTM_RUL(input_dim, hidden_units, dropout).to(device)
+    model = BiLSTM_GRU_RUL(input_dim, hidden_units, dropout).to(device)
     criterion = CombinedLoss(alpha=0.8) 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0.01)
 
