@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error, mean_absolute_percentage_error
 
 import torch
 import torch.nn as nn
@@ -29,6 +29,7 @@ class CombinedLoss(nn.Module):
         mse_loss = self.mse(y_pred, y_true)
         nasa_loss = self.nasa_loss(y_pred, y_true)
         return self.alpha * mse_loss + (1 - self.alpha) * nasa_loss
+        
 
 
 def evaluate_metrics(y_true, y_pred):
@@ -37,7 +38,7 @@ def evaluate_metrics(y_true, y_pred):
 
     mae = mean_absolute_error(y_true, y_pred)
     rmse = np.sqrt(root_mean_squared_error(y_true, y_pred))
-    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+    mape = mean_absolute_percentage_error(y_true, y_pred)
 
     # NASA score
     error = y_pred - y_true
