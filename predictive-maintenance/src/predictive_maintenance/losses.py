@@ -37,7 +37,7 @@ def evaluate_metrics(y_true, y_pred):
 
     mae = mean_absolute_error(y_true, y_pred)
     rmse = np.sqrt(root_mean_squared_error(y_true, y_pred))
-    r2 = r2_score(y_true, y_pred)
+    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
     # NASA score
     error = y_pred - y_true
@@ -47,4 +47,5 @@ def evaluate_metrics(y_true, y_pred):
         np.exp(error / 10) - 1
     ).sum()
 
-    return mae, rmse, r2, nasa
+    return mae, rmse, mape, nasa
+

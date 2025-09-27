@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error, mean_absolute_percentage_error
 
 import torch
 import torch.nn as nn
@@ -30,7 +30,7 @@ def print_score(y_true, y_pred, prefix=""):
     
     mae = mean_absolute_error(y_true, y_pred)
     rmse = root_mean_squared_error(y_true, y_pred)
-    r2 = r2_score(y_true, y_pred)
+    mape = mean_absolute_percentage_error(y_true, y_pred)
 
     # NASA scoring function (punishes late predictions more)
     errors = np.clip(y_pred - y_true, -50, 50)
@@ -40,14 +40,14 @@ def print_score(y_true, y_pred, prefix=""):
     metrics = {
         "MAE": mae,
         "RMSE": rmse,
-        "R2": r2,
+        "MAPE": mape,
         "NASA": nasa_score
     }
 
     # Print neatly
     print(f"MAE       : {mae:.2f}")
     print(f"RMSE      : {rmse:.2f}")
-    print(f"R²        : {r2:.2f}")
+    print(f"MAPE        : {mape:.2f}")
     print(f"NASA Score: {nasa_score:.2f}")
 
     # Save metrics

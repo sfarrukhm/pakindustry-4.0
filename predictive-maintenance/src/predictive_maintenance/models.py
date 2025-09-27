@@ -104,7 +104,7 @@ def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50],
 
         train_loss, val_loss = np.mean(train_losses), np.mean(val_losses)
         y_true_all, y_pred_all = torch.cat(y_true_all), torch.cat(y_pred_all)
-        mae, rmse, r2, nasa = evaluate_metrics(y_true_all, y_pred_all)
+        mae, rmse, mape, nasa = evaluate_metrics(y_true_all, y_pred_all)
 
         # --------------------
         # History tracking
@@ -113,7 +113,7 @@ def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50],
         history["val_loss"].append(val_loss)
         history["val_mae"].append(mae)
         history["val_rmse"].append(rmse)
-        history["val_r2"].append(r2)
+        history["val_mape"].append(mape)
         history["val_nasa"].append(nasa)
 
         # --------------------
@@ -136,7 +136,7 @@ def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50],
             tqdm.write(
                 f"📊 Epoch {epoch+1}/{epochs} | "
                 f"Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | "
-                f"MAE: {mae:.2f} | RMSE: {rmse:.2f} | R²: {r2:.2f} | NASA: {nasa:.2f} | "
+                f"MAE: {mae:.2f} | RMSE: {rmse:.2f} | MAPE: {mape:.2f} | NASA: {nasa:.2f} | "
                 f"Best Val: {best_val_loss:.4f}"
             )
 
