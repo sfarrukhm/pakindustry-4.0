@@ -19,7 +19,7 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 
 def print_score(y_true, y_pred, prefix=""):
     """
-    Compute regression metrics and NASA scoring function.
+    Compute regression metrics
     Works with numpy arrays or torch tensors.
     Saves metrics to results/metrics_{prefix}.txt if prefix is given.
     """
@@ -35,20 +35,20 @@ def print_score(y_true, y_pred, prefix=""):
     # NASA scoring function (punishes late predictions more)
     errors = np.clip(y_pred - y_true, -50, 50)
     nasa_terms = [np.exp(-err/10) - 1 if err < 0 else np.exp(err/13) - 1 for err in errors]
-    nasa_score = np.sum(nasa_terms)
+    # nasa_score = np.sum(nasa_terms)
 
     metrics = {
         "MAE": mae,
         "RMSE": rmse,
         "MAPE": mape,
-        "NASA": nasa_score
+        # "NASA": nasa_score
     }
 
     # Print neatly
     print(f"MAE       : {mae:.2f}")
     print(f"RMSE      : {rmse:.2f}")
     print(f"MAPE        : {mape:.2f}")
-    print(f"NASA Score: {nasa_score:.2f}")
+    # print(f"NASA Score: {nasa_score:.2f}")
 
     # Save metrics
     if prefix:
