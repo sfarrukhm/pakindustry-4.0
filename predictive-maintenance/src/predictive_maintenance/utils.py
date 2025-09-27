@@ -156,7 +156,7 @@ def run_pipeline(train_path, test_path, rul_path,
     ### ADDED: Load best model for evaluation (if exists)
     best_model_path = "./models/best.pth"
     if os.path.exists(best_model_path):
-        best_model = LSTM_RUL(input_dim).to(device)
+        best_model = CNN_LSTM_RUL(input_dim).to(device)
         best_model.load_state_dict(torch.load(best_model_path, map_location=device))
         best_model.eval()
         model = best_model  # overwrite model with best version

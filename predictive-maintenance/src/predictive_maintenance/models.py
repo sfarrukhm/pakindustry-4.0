@@ -56,7 +56,7 @@ class CNN_LSTM_RUL(nn.Module):
 
 
 def train_lstm_model(train_loader, val_loader, input_dim, hidden_units=[100,50], dropout=0.2, alpha=0.5,
-                     lr=0.001, epochs=60, patience=15, device="cuda", save_dir="./models"):
+                     lr=0.001, epochs=60, patience=25, device="cuda", save_dir="./models"):
     
     os.makedirs(save_dir, exist_ok=True)
 
