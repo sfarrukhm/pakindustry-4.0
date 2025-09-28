@@ -83,7 +83,7 @@ pakindustry-4.0/
 ├── defect-detection/           # Module 1: Vision-based defect detection
 ├── predictive-maintenance/     # Module 2: RUL estimation
 ├── forecast/                   # Module 3: Supply chain demand forecasting
-├── shared/                     # Common configs, utils (if any)
+├── test_samples/               # Contains sample datasets for testing
 └── README.md                   # This root overview
 ```
 

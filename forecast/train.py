@@ -53,8 +53,6 @@ test["date"] = pd.to_datetime(test["date"])
 # Remove duplicate columns from calendar
 dup_cols = [c for c in train_cal.columns if c in train.columns and c != "date"]
 train_cal = train_cal.drop(columns=dup_cols)
-print(train_cal.columns)
-breakpoint()
 # Merge calendar
 train = train.merge(train_cal, on="date", how="left")
 test = test.merge(train_cal, on="date", how="left")

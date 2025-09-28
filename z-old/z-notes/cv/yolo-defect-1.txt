@@ -1,2 +1,0 @@
-train3
-changed lr from 0.0008 to 0.0005 with cosine anealing
