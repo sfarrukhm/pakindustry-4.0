@@ -1,16 +1,3 @@
-Got it ✅ — I’ll rewrite your **Defect Detection README** in the same structured, professional style as the other two (Predictive Maintenance & Forecasting).
-
-I’ll:
-
-* Keep the same **topics/flow** (Overview → Problem Statement → Repo Structure → Dataset → Training → Inference → Evaluation → App → Limitations → Reproducibility).
-* Remove clutter (local file paths, extra duplicate details).
-* Keep `app.py` info clear as part of reproducibility & usability.
-* Write it in the same concise yet technical tone.
-
-Here’s the polished version:
-
----
-
 # 🏭 Defect Detection Module – PakIndustry 4.0 AI Suite
 
 Computer vision–based **casting defect detection** for manufacturing quality control.
