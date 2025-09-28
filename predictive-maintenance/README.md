@@ -1,9 +1,3 @@
-Perfect 👌 — adding **clear, step-by-step code guidelines** for reproducibility will make your README much stronger (judges will appreciate being able to run everything easily).
-
-Here’s the **extended final README** with a new section **“Reproducibility & Code Guidelines”** at the end.
-
----
-
 # Predictive Maintenance: Turbofan Engine RUL Prediction
 
 Deep learning-based remaining useful life (RUL) prediction for jet engines using NASA C-MAPSS dataset
