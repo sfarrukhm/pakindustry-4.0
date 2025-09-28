@@ -1,11 +1,3 @@
-Perfect — thanks for sharing the Rohlik README 🙌
-
-I’ll now **restructure and rewrite it in the same style** as the Predictive Maintenance README, keeping consistent formatting, section headers, and tone, while removing extra/unnecessary topics and **adding `app.py` information** for the Streamlit dashboard.
-
-Here’s the rewritten version:
-
----
-
 # Rohlik Orders Forecasting
 
 Advanced **supply chain demand forecasting** using machine learning and time series analysis.
