@@ -1,41 +1,45 @@
 import pandas as pd
 import numpy as np
 import joblib
-
-# ===== Load model =====
-model = joblib.load("models/best_model.pkl")
-
-# ===== Load test data =====
-test = pd.read_csv("data/forecast/test.csv")
-train_cal = pd.read_csv("data/forecast/train_calendar.csv")
-
-test["date"] = pd.to_datetime(test["date"])
-train_cal["date"] = pd.to_datetime(train_cal["date"])
-
-# Merge calendar
-dup_cols = [c for c in train_cal.columns if c in test.columns and c != "date"]
-train_cal = train_cal.drop(columns=dup_cols)
-test = test.merge(train_cal, on="date", how="left")
-
-# ===== Feature Engineering (same as train) =====
-def create_features(df):
-    df = df.copy()
-    df["weekday"] = df["date"].dt.weekday
-    df["month"] = df["date"].dt.month
-    df["year"] = df["date"].dt.year
-    df["warehouse_weekday"] = df["warehouse"] + "_" + df["weekday"].astype(str)
-    return df
-
-test = create_features(test)
-
-# NOTE: No lags available in test (future), so only calendar + date features used
-features = [c for c in test.columns if c not in ["id","orders","date"]]
-
-# ===== Predict =====
-test["orders"] = model.predict(test[features])
-
-# Save predictions
 import os
-os.makedirs("results", exist_ok=True)
-test[["id","orders"]].to_csv("results/predictions.csv", index=False)
-print("✅ Predictions saved to results/predictions.csv")
+
+
+
+def run_inference(input_file: str, output_file: str = "results/predictions.csv"):
+
+    # ===== Load model =====
+    model = joblib.load("models/best_model.pkl")
+
+    # ===== Load test data =====
+    test = pd.read_csv(input_file)
+
+
+    features = [c for c in test.columns if c not in ["id", "orders", "date"]]
+    for col in test.select_dtypes(include="object").columns:
+        test[col] = test[col].astype("category")
+
+
+    # ===== Predict =====
+    preds = model.predict(test[features]).astype(int)
+
+
+    # ===== Save =====
+    os.makedirs("results", exist_ok=True)
+    output = pd.DataFrame({"id": test.index if "id" not in test.columns else test["id"],
+                           "orders": preds})
+    output.to_csv(output_file, index=False)
+    return output  # so Streamlit can use results
+
+
+if __name__ == "__main__":
+    # ===== Parse arguments =====
+    import argparse
+    parser = argparse.ArgumentParser(description="Run inference with trained LightGBM model")
+    parser.add_argument("--input", type=str, required=True, help="Path to input test CSV (processed)")
+    parser.add_argument("--output", type=str, default="results/predictions.csv", help="Path to save predictions CSV")
+    args = parser.parse_args()
+
+    # ===== Run inference =====
+    predictions = run_inference(args.input,args.output)
+    print(predictions.head())
+    print(f"✅ Predictions saved to {args.output}")

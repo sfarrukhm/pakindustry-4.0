@@ -42,6 +42,9 @@ def add_lags(df, lags=[7,14,21,28,35], windows=[7,14,21,28,35]):
 train = pd.read_csv("data/forecast/train.csv")
 train_cal = pd.read_csv("data/forecast/train_calendar.csv")
 test = pd.read_csv("data/forecast/test.csv")
+test_cal = pd.read_csv("data/forecast/test_calendar.csv")
+
+test_cal["date"] = pd.to_datetime(test_cal["date"])
 
 train["date"] = pd.to_datetime(train["date"])
 train_cal["date"] = pd.to_datetime(train_cal["date"])
@@ -50,7 +53,8 @@ test["date"] = pd.to_datetime(test["date"])
 # Remove duplicate columns from calendar
 dup_cols = [c for c in train_cal.columns if c in train.columns and c != "date"]
 train_cal = train_cal.drop(columns=dup_cols)
-
+print(train_cal.columns)
+breakpoint()
 # Merge calendar
 train = train.merge(train_cal, on="date", how="left")
 test = test.merge(train_cal, on="date", how="left")
@@ -68,7 +72,8 @@ for col in full_data.select_dtypes(include="object").columns:
 
 train = full_data.loc[full_data["orders"].notna()]
 test = full_data.loc[full_data["orders"].isna()]
-
+# Save test set
+test.to_csv("data/forecast/processed_test.csv", index=False)
 # ========== Validation Split ==========
 cutoff = train["date"].max() - pd.Timedelta(days=14)
 train_set = train[train["date"] <= cutoff]

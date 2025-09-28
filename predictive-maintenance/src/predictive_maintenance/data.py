@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-def load_data(train_path, test_path, rul_path, max_rul=125):
+def load_data(train_path, test_path, rul_path=None, max_rul=125):
     """Load and preprocess NASA C-MAPSS FD001 dataset with capped RUL."""
     col_names = (
         ["engine_number", "cycle", "op_setting_1", "op_setting_2", "op_setting_3"] +
@@ -17,9 +17,10 @@ def load_data(train_path, test_path, rul_path, max_rul=125):
     test_df  = test_df.iloc[:, :len(col_names)]
     train_df.columns = col_names
     test_df.columns  = col_names
-
-    test_rul = pd.read_csv(rul_path, sep="\s+", header=None).iloc[:, 0].clip(upper=max_rul)
-
+    if rul_path is not None:
+        test_rul = pd.read_csv(rul_path, sep="\s+", header=None).iloc[:, 0].clip(upper=max_rul)
+    else:
+        test_rul = None
     # Compute RUL for training
     rul = train_df.groupby("engine_number")["cycle"].max().reset_index()
     rul.columns = ["engine_number", "max_cycle"]

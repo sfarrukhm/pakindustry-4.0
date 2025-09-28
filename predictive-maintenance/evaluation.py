@@ -3,7 +3,7 @@ import yaml
 import torch
 import numpy as np
 from src.predictive_maintenance.utils import print_score, plot_scatter, plot_histogram
-from src.predictive_maintenance.models import LSTM_RUL
+from src.predictive_maintenance.models import BiLSTM_GRU_RUL
 from src.predictive_maintenance.data import (
     load_data,
     add_engineered_features,
@@ -51,7 +51,7 @@ train_df, test_df = scale(train_df, test_df, FEATURE_COLS)
 # LOAD MODEL
 # -------------------------------
 input_dim = len(FEATURE_COLS)
-model = LSTM_RUL(input_dim).to(DEVICE)
+model = BiLSTM_GRU_RUL(input_dim).to(DEVICE)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 model.eval()
 
