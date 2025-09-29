@@ -29,12 +29,9 @@ Pakistan’s manufacturing sector struggles with:
 
 ⚠️ **Note on Limitations:**
 
-* Predictive Maintenance currently underfits (flat predictions ~21 cycles) → framework works, but model accuracy is limited.
 * Defect Detection is highly accurate (99.6%) but trained on one dataset → retraining needed for new materials/lighting conditions.
 * Supply Chain Forecasting performs exceptionally (1.97% sMAPE), but relies on historical demand patterns → disruptive events could reduce accuracy.
-
-We are **transparent about shortcomings**, because we believe real-world AI solutions must be **practical, honest, and continuously improvable**.
-
+* Predictive Maintenance currently underfits (flat predictions ~21 cycles) → framework works, but model accuracy is limited.
 ---
 
 ## 🧩 Modules Overview
@@ -42,7 +39,7 @@ We are **transparent about shortcomings**, because we believe real-world AI solu
 ### 1. 🏭 Defect Detection
 
 * **Goal:** Detect casting defects in industrial parts
-* **Model:** EfficientNet-B0 (transfer learning, 5.3M params)
+* **Model:** EfficientNet-B0 (transfer learning)
 * **Performance:** 99.6% accuracy, 100% precision, 99.7% F1
 * **Deployment:** Streamlit dashboard for easy factory-floor use
 * **Limitations:** Lighting-sensitive, optimized for cast parts only
@@ -58,9 +55,11 @@ We are **transparent about shortcomings**, because we believe real-world AI solu
 * **Model:** LSTM/GRU sequence models
 * **Performance:** MAE ~13, MAPE ~22%, conservative flat predictions (~21 cycles)
 * **Deployment:** Inference pipeline + Streamlit app for uploading test data
-* **Limitations:** Underfits complex degradation patterns, needs attention models
+* **Limitations:** Underfits complex degradation patterns, needs further training on larger dataset
 
 ➡️ [Read full Predictive Maintenance README](predictive-maintenance/README.md)
+[![Watch the video](https://img.youtube.com/vi/0YBDf9Avagc/0.jpg)](https://youtu.be/0YBDf9Avagc)
+
 
 ---
 
@@ -80,15 +79,14 @@ We are **transparent about shortcomings**, because we believe real-world AI solu
 
 ```
 pakindustry-4.0/
+├── docs/                       # Contains project documentation
 ├── defect-detection/           # Module 1: Vision-based defect detection
 ├── predictive-maintenance/     # Module 2: RUL estimation
 ├── forecast/                   # Module 3: Supply chain demand forecasting
-<<<<<<< HEAD
 ├── test_samples/               # Contains sample datasets for testing
-=======
-├── shared/                     # Contains sample datasets for testing
->>>>>>> 6aa701e0c81a3fa6615f027ecd268750f4d3bc80
-└── README.md                   # This root overview
+├── LICENSE                     # MIT license file
+├── README.md                   # Root overview
+└── requirements.txt            # Project dependencies
 ```
 
 ---
