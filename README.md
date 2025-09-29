@@ -45,7 +45,7 @@ Pakistan’s manufacturing sector struggles with:
 * **Limitations:** Lighting-sensitive, optimized for cast parts only
 
 ➡️ [Read full Defect Detection README](defect-detection/README.md)
-
+➡️ [Watch the video](https://youtu.be/R2gy_30fbUI)
 ---
 
 ### 2. 🔧 Predictive Maintenance
@@ -58,7 +58,7 @@ Pakistan’s manufacturing sector struggles with:
 * **Limitations:** Underfits complex degradation patterns, needs further training on larger dataset
 
 ➡️ [Read full Predictive Maintenance README](predictive-maintenance/README.md)
-[![Watch the video](https://img.youtube.com/vi/0YBDf9Avagc/0.jpg)](https://youtu.be/0YBDf9Avagc)
+➡️ [Watch the video](https://youtu.be/0YBDf9Avagc)
 
 
 ---
@@ -72,6 +72,7 @@ Pakistan’s manufacturing sector struggles with:
 * **Limitations:** Reliant on historical continuity, not yet tested for extreme disruptions
 
 ➡️ [Read full Forecasting README](forecast/README.md)
+➡️ [Watch the video](https://youtu.be/mU2ZH6Nc6Qk)
 
 ---
 
