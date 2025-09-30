@@ -70,6 +70,7 @@ predictive-maintenance/
 * **Test Engines:** 100 engines (truncated runs)
 * **Measurements:** 21 sensors + 3 operating conditions
 * **Characteristics:** Engines start healthy and degrade over time with noise and variation
+*  **Source**: [NASA Turbofan Jet Engine Data Set - Run to Failure Degradation Simulation - Kaggle](https://www.kaggle.com/datasets/behrad3d/nasa-cmaps)
 
 ---
 

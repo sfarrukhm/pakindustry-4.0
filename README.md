@@ -176,4 +176,3 @@ pip install -r requirements.txt
 
 PakIndustry 4.0 AI Suite is not just a hackathon project — it’s a **vision for accessible AI in Pakistani manufacturing**.
 
-We’ve shown what’s possible: **99% defect detection accuracy, sub-2% supply chain forecast error, and a working predictive maintenance pipeline**.
