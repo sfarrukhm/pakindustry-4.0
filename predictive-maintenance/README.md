@@ -4,6 +4,7 @@ Deep learning-based remaining useful life (RUL) prediction for jet engines using
 
 ---
 
+
 ## Executive Summary
 
 This project implements an **end-to-end predictive maintenance solution pipeline** for jet engines using deep learning techniques. Built on NASA's Commercial Modular Aero-Propulsion System Simulation (C-MAPSS) turbofan engine degradation dataset, the system predicts Remaining Useful Life (RUL) by analyzing multivariate sensor time series data.
@@ -82,7 +83,6 @@ predictive-maintenance/
 
 ### Model Architectures Tested
 
-* Baseline LSTM (uni- and bi-directional)
 * LSTM + GRU hybrid
 * CNN-LSTM combination
 * Dropout and layer normalization for regularization
@@ -92,8 +92,7 @@ predictive-maintenance/
 * **MAE (Mean Absolute Error)** – average error in cycles
 * **RMSE (Root Mean Squared Error)** – penalizes larger errors
 * **MAPE (Mean Absolute Percentage Error)** – relative error (%)
-* **NASA Scoring Function** – domain-specific exponential penalty for over/under-estimation
-
+* **NASA Scoring Function** – domain-specific penalty for over estimation
 ---
 
 ## Performance Metrics & Results
@@ -116,7 +115,7 @@ While the metrics suggest “reasonable” performance, the flat predictions ind
 
 * Better architecture (attention, transformers)
 * Hyperparameter tuning
-* Training across multiple datasets (FD002–FD004)
+* Training across multiple datasets 
 
 ---
 
@@ -137,55 +136,29 @@ While the metrics suggest “reasonable” performance, the flat predictions ind
 
 ---
 
-## Streamlit Dashboard
-
-We built a **Streamlit app** (`app.py`) that allows users to:
-
-* Upload test data
-* Run inference via the trained model
-* View predictions in an interactive dashboard
-
-This demonstrates the feasibility of real-world deployment and makes results accessible to non-technical stakeholders.
-
----
-
 ## Reproducibility & Code Guidelines
 
 Follow these steps to reproduce results and run the system:
 
-### 1. Clone the repository
+
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/sfarrukhm/pakindustry-4.0.git
-cd predictive-maintenance
+cd pakindustry-4.0
 ```
 
-### 2. Create a virtual environment
+### 2. Setup Environment
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate       # On Linux/Mac
-.venv\Scripts\activate          # On Windows
-```
-
-### 3. Install dependencies
-
-```bash
+source .venv/bin/activate   # (Linux/Mac)
+.venv\Scripts\activate      # (Windows)
 pip install -r requirements.txt
+cd predictive-maintenance
 ```
 
-### 4. Prepare the dataset
-
-Download the NASA C-MAPSS dataset and place the files inside:
-
-```
-data/CMaps/
-    ├── train_FD001.txt
-    ├── test_FD001.txt
-    ├── RUL_FD001.txt
-```
-
-### 5. Train the model
+### 3. Train Model
 
 ```bash
 python train.py
@@ -193,25 +166,27 @@ python train.py
 
 This will generate checkpoints inside `models/`.
 
-### 6. Run inference
+### 4. Run inference
 
 ```bash
 python inference.py --input data/CMaps/test_FD001.txt
 ```
 
-### 7. Launch the Streamlit dashboard
 
-```bash
-streamlit run app.py
-```
 
 Upload your test file and interact with predictions visually.
 
-### 8. Evaluate results
+### 5. Evaluate results
 
 ```bash
 python evaluation.py
 ```
+### 6. Launch the Streamlit dashboard
+
+```bash
+streamlit run app.py
+```
+➡️ [Watch the demo](https://youtu.be/0YBDf9Avagc)
 
 ---
 

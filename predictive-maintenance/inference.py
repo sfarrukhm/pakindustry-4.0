@@ -10,6 +10,8 @@ from src.predictive_maintenance.data import (
     create_feature_cols,
     make_test_windows
 )
+import warnings
+warnings.filterwarnings("ignore")
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_PATH = "models/best.pt"
@@ -61,3 +63,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     predictions = run_inference(args.input)
+    print(predictions)

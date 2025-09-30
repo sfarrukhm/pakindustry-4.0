@@ -75,13 +75,6 @@ defect-detection/
 * Domain: Industrial cast parts
 * Quality: Production-grade images
 * Balance: Slightly imbalanced dataset
-
-**Data Augmentation (training only):**
-
-* Random flips & rotations (±15°)
-* Brightness/contrast adjustment
-* Gaussian noise injection
-
 ---
 
 ## Model & Training
@@ -89,8 +82,7 @@ defect-detection/
 **Architecture:** EfficientNet-B0 (ImageNet pretrained)
 
 * Global Average Pooling → Dropout(0.3) → Dense(2) → Softmax
-* Parameters: ~5.3M
-* Input size: 224×224×3 RGB
+* Input size: 300×300×3 (Grayscale converted to RGB format)
 
 **Training Configuration:** (from `src/config.yaml`)
 
@@ -110,7 +102,61 @@ defect-detection/
 
 ---
 
-## Inference
+**Features:**
+
+* Upload & predict (single or multiple images)
+* Confidence visualization
+* Misclassified image inspection
+* Downloadable results (CSV/PDF)
+* Simple interface for factory floor operators
+
+---
+
+## Limitations
+
+* Sensitive to extreme lighting variations
+* Needs retraining for new defect types/materials
+* Optimized for cast parts (not yet generalized)
+* Inference ~0.1 to 0.27s per image (not real-time for high-speed lines)
+
+---
+
+## Future Work
+
+1. Extend to **multi-class defect detection**
+2. Optimize to reduce latency for **real-time processing**
+3. Deployable to **edge devices**
+4. Integrate **active learning** for continuous improvement
+
+---
+
+## Reproducibility Guidelines
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/sfarrukhm/pakindustry-4.0.git
+cd pakindustry-4.0
+```
+
+### 2. Setup Environment
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # (Linux/Mac)
+.venv\Scripts\activate      # (Windows)
+pip install -r requirements.txt
+cd defect-detection
+```
+
+### 3. Train Model
+
+```bash
+python train.py
+```
+
+
+### 4. Inference
 
 ### Single Image Prediction
 
@@ -134,7 +180,7 @@ python inference.py --folder data/valid/ --output results.csv
 
 ---
 
-## Evaluation
+### 4. Evaluation
 
 Run:
 
@@ -161,85 +207,14 @@ Generates:
 
 ---
 
-## Web Application (`app.py`)
+### 5. Web Application (`app.py`)
 
 Interactive **Streamlit dashboard** for defect detection.
 
 ```bash
 streamlit run app.py
 ```
-
-**Features:**
-
-* Upload & predict (single or multiple images)
-* Confidence visualization
-* Misclassified image inspection
-* Downloadable results (CSV/PDF)
-* Simple interface for factory floor operators
-
----
-
-## Limitations
-
-* Sensitive to extreme lighting variations
-* Needs retraining for new defect types/materials
-* Optimized for cast parts (not yet generalized)
-* Inference ~0.27s per image (not real-time for high-speed lines)
-
----
-
-## Future Work
-
-1. Extend to **multi-class defect detection**
-2. Optimize for **real-time processing** (TensorRT/ONNX)
-3. Deployable to **edge devices**
-4. Integrate **active learning** for continuous improvement
-
----
-
-## Reproducibility Guidelines
-
-### 1. Clone Repository
-
-```bash
-git clone https://github.com/sfarrukhm/pakindustry-4.0.git
-cd defect-detection
-```
-
-### 2. Setup Environment
-
-```bash
-python -m venv .venv
-source .venv/bin/activate   # (Linux/Mac)
-.venv\Scripts\activate      # (Windows)
-pip install -r requirements.txt
-```
-
-### 3. Train Model
-
-```bash
-python train.py
-```
-
-### 4. Run Inference
-
-```bash
-python inference.py --image data/valid/sample.jpg
-```
-
-### 5. Evaluate
-
-```bash
-python evaluation.py --model models/best_model.pth --data data/test/
-```
-
-### 6. Launch Dashboard
-
-```bash
-streamlit run app.py
-```
-
----
+➡️ [Watch the demo](https://youtu.be/R2gy_30fbUI)
 
 ## Conclusion
 

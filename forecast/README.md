@@ -49,7 +49,6 @@ forecast/
 ├── inference.py          # Batch inference script
 ├── evaluation.py         # Model evaluation
 ├── app.py                # Streamlit dashboard for predictions
-└── requirements.txt      # Dependencies
 ```
 
 ---
@@ -68,6 +67,7 @@ forecast/
 * **Warehouses:** Prague_1, Brno_1, Prague_2, Prague_3, Munich_1, Frankfurt_1, Budapest_1
 * **Features:** Lagged orders, rolling means, weekday/month/holiday effects, warehouse encodings
 * **Calendar Integration:** Seasonal and operational events merged on date
+* **Source:** [Rohlik Orders Forecasting Challenge - Kaggle](https://www.kaggle.com/competitions/rohlik-orders-forecasting-challenge/data)
 
 ---
 
@@ -85,23 +85,15 @@ forecast/
 * **Validation:** Last 14 days as holdout
 * **Reproducibility:** Fixed seed across all runs
 
-### Streamlit App (`app.py`)
-
-* Upload test dataset (CSV)
-* Run trained LightGBM model for predictions
-* Display forecasts in tabular and chart formats
-* Export predictions as CSV
-
----
 
 ## Performance Metrics & Results
 
 **Validation Performance:**
 
-* **RMSE:** 208.40
-* **MAE:** 126.87
 * **sMAPE:** 1.97%
 * **NRMSE:** 0.032
+* * **RMSE:** 208.40
+* **MAE:** 126.87
 
 **Performance Context:**
 Daily orders range **5,000–8,500 per warehouse**. The achieved error rates correspond to **2–3% relative error**, significantly outperforming the hackathon threshold of **≤10%**.
@@ -128,43 +120,26 @@ Daily orders range **5,000–8,500 per warehouse**. The achieved error rates cor
 
 ---
 
-## Reproducibility & Code Guidelines
+## Reproducibility Guidelines
 
-Follow these steps to reproduce results and run the system:
-
-### 1. Clone the repository
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/sfarrukhm/pakindustry-4.0.git
-cd forecast
+cd pakindustry-4.0
 ```
 
-### 2. Create a virtual environment
+### 2. Setup Environment
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate       # On Linux/Mac
-.venv\Scripts\activate          # On Windows
-```
-
-### 3. Install dependencies
-
-```bash
+source .venv/bin/activate   # (Linux/Mac)
+.venv\Scripts\activate      # (Windows)
 pip install -r requirements.txt
+cd forecast
 ```
 
-### 4. Prepare the dataset
-
-Ensure the following files exist in `data/forecast/`:
-
-```
-data/forecast/
-    ├── train.csv
-    ├── train_calendar.csv
-    ├── test.csv
-```
-
-### 5. Train the model
+### 3. Train Model
 
 ```bash
 python train.py
@@ -172,26 +147,24 @@ python train.py
 
 This will save the trained model into `models/`.
 
-### 6. Run inference
+### 4. Run inference
 
 ```bash
-python inference.py --input data/forecast/test.csv
+python inference.py --input data/forecast/test_forecast.csv
 ```
 
-### 7. Evaluate results
+### 5. Evaluate results
 
 ```bash
 python evaluation.py
 ```
 
-### 8. Launch the Streamlit dashboard
+### 6. Launch the Streamlit dashboard
 
 ```bash
 streamlit run app.py
 ```
-
-Upload your test file, view predictions interactively, and download results.
-
+➡️ [Watch the demo](https://youtu.be/mU2ZH6Nc6Qk)
 ---
 
 ## Conclusion
